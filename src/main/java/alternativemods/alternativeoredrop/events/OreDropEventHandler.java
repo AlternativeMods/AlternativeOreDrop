@@ -45,6 +45,6 @@ public class OreDropEventHandler {
     @ForgeSubscribe
     public void oreRegister(OreDictionary.OreRegisterEvent event) {
         if(event.Name.startsWith("ore"))
-            AlternativeOreDrop.registerOre(event.Name, OreDictionary.getOres(event.Name).get(0));
+            AlternativeOreDrop.registerOre(event.Name, event.Ore);
     }
 }
