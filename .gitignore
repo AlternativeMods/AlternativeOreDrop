@@ -1,0 +1,12 @@
+.gradle
+build
+gradle
+out
+runtime
+
+*.iml
+*.ipr
+*.iws
+MAKE.bat
+runastyle.sh
+TODO

@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT'
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "reening"
+        url = "http://maven.reening.nl"
+    }
+}
+
+apply plugin: 'forge'
+
+group = 'alternativemods.alternativeoredrop'
+version = 'a1'
+archivesBaseName = 'AlternativeOreDrop'
+
+minecraft {
+    assetDir = "runtime/client/assets"
+    version = '1.6.4-9.11.1.964'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'out'
+       }
+    }
+}
