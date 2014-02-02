@@ -1,21 +1,20 @@
 package alternativemods.alternativeoredrop.commands;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import net.minecraft.command.ICommand;
+import alternativemods.alternativeoredrop.PacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatMessageComponent;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
 
 /**
  * Author: Lordmau5
  * Date: 02.02.14
  * Time: 17:22
  */
-public class MainCommand implements ICommand {
+public class MainCommand extends CommandBase {
 
     @Override
     public String getCommandName() {
@@ -24,22 +23,20 @@ public class MainCommand implements ICommand {
 
     @Override
     public String getCommandUsage(ICommandSender icommandsender) {
-        return "aod <updateRegister/setIdentifiers>";
-    }
-
-    @Override
-    public List getCommandAliases() {
-        return null;
+        return "aod <gui/updateRegister/identifiers/setIdentifiers>";
     }
 
     @Override
     public void processCommand(ICommandSender sender, String[] astring) {
         if(astring.length == 0) {
-            sender.sendChatToPlayer(new ChatMessageComponent().addText("/aod <regenerateRegister/identifiers/setIdentifiers>"));
+            sender.sendChatToPlayer(new ChatMessageComponent().addText("/aod <gui/regenerateRegister/identifiers/setIdentifiers>"));
             return;
         }
 
-        if(astring[0].equals("regenerateRegister")) {
+        if(astring[0].equals("gui")) {
+            PacketDispatcher.sendPacketToPlayer(PacketHandler.createGuiPacket(), (Player) sender);
+        }
+        else if(astring[0].equals("regenerateRegister")) {
             AlternativeOreDrop.updateRegister();
             sender.sendChatToPlayer(new ChatMessageComponent().addText("Succesfully regenerated the register!"));
         }
@@ -61,24 +58,7 @@ public class MainCommand implements ICommand {
             sender.sendChatToPlayer(new ChatMessageComponent().addText(astring[1]));
         }
         else
-            sender.sendChatToPlayer(new ChatMessageComponent().addText("/aod <updateRegister/setIdentifiers>"));
-    }
-
-    @Override
-    public boolean canCommandSenderUseCommand(ICommandSender icommandsender) {
-        if(MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(((EntityPlayer)icommandsender).username))
-            return true;
-        return false;
-    }
-
-    @Override
-    public List addTabCompletionOptions(ICommandSender icommandsender, String[] astring) {
-        return null;
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] astring, int i) {
-        return false;
+            sender.sendChatToPlayer(new ChatMessageComponent().addText("/aod <gui/updateRegister/identifiers/setIdentifiers>"));
     }
 
     @Override

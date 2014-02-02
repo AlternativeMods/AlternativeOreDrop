@@ -2,10 +2,12 @@ package alternativemods.alternativeoredrop;
 
 import alternativemods.alternativeoredrop.commands.MainCommand;
 import alternativemods.alternativeoredrop.events.OreDropEventHandler;
+import alternativemods.alternativeoredrop.proxy.CommonProxy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -29,8 +31,8 @@ import java.util.Map;
  * Date: 25.01.14
  * Time: 18:44
  */
-@Mod(modid = "AlternativeOreDrop", name = "Alternative Ore Drop")
-@NetworkMod(clientSideRequired = false, serverSideRequired = false)
+@Mod(modid = "AlternativeOreDrop", name = "Alternative Ore Drop", version = "1.0")
+@NetworkMod(clientSideRequired = false, serverSideRequired = false, channels={"AltOreDrop"}, packetHandler = PacketHandler.class)
 @SuppressWarnings("unused")
 public class AlternativeOreDrop {
 
@@ -46,6 +48,12 @@ public class AlternativeOreDrop {
         }
     }
 
+    @Mod.Instance(value = "AlternativeOreDrop")
+    public static AlternativeOreDrop instance;
+
+    @SidedProxy(clientSide = "alternativemods.alternativeoredrop.proxy.ClientProxy", serverSide = "alternativemods.alternativeoredrop.proxy.CommonProxy")
+    public static CommonProxy proxy;
+
     private static Map<String, ArrayList<OreRegister>> oreMap = new HashMap<String, ArrayList<OreRegister>>();
     public static String[] identifiers = new String[]{};
     public static boolean recreateRegister = false;
@@ -53,6 +61,9 @@ public class AlternativeOreDrop {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        instance = this;
+        proxy = new CommonProxy();
+
         fileDir = event.getModConfigurationDirectory() + "/AlternativeMods/AlternativeOreDrop";
     }
 
@@ -75,19 +86,8 @@ public class AlternativeOreDrop {
         cfg.save();
     }
 
-    public static void updateRegister() {
-        for(String oreName : OreDictionary.getOreNames())
-            for(String id : identifiers)
-                if(oreName.startsWith(id))
-                    registerOre(oreName, OreDictionary.getOres(oreName));
-
-        initiateFirstRegistrations(fileDir);
-    }
-
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-        oreMap.clear();
-
         MinecraftForge.EVENT_BUS.register(new OreDropEventHandler());
 
         //---------------------------------------------------------------
@@ -127,6 +127,17 @@ public class AlternativeOreDrop {
             }
             catch (FileNotFoundException e) {}
         }
+    }
+
+    public static void updateRegister() {
+        oreMap.clear();
+        System.out.println("Identifiers: " + StringUtils.join(identifiers, ","));
+        for(String oreName : OreDictionary.getOreNames())
+            for(String id : identifiers)
+                if(oreName.startsWith(id))
+                    registerOre(oreName, OreDictionary.getOres(oreName));
+
+        initiateFirstRegistrations(fileDir);
     }
 
     public static void initiateFirstRegistrations(String dir) {
