@@ -22,29 +22,24 @@ public class OreDropEventHandler {
         if(event.world.isRemote)
             return;
 
-        EntityItem oldItem = (EntityItem) event.entity;
-        int stackSize = oldItem.getEntityItem().stackSize;
+        EntityItem itemEnt = (EntityItem) event.entity;
+        int stackSize = itemEnt.getEntityItem().stackSize;
 
         ItemStack item = ((EntityItem)event.entity).getEntityItem();
         item = new ItemStack(item.itemID, 1, item.getItemDamage());
         String name = OreDictionary.getOreName(OreDictionary.getOreID(item));
         if(AlternativeOreDrop.isOreRegistered(name) && !AlternativeOreDrop.isFirstRegisteredOre(name, item)) {
-            ItemStack alternativeOreStack = AlternativeOreDrop.returnAlternativeOre(name);
-            ItemStack alternativeOre = new ItemStack(alternativeOreStack.itemID, stackSize, alternativeOreStack.getItemDamage());
-            event.entity.setDead();
+            AlternativeOreDrop.OreRegister oreReg = AlternativeOreDrop.returnAlternativeOre(name);
+            ItemStack alternativeOre = new ItemStack(oreReg.itemID, stackSize, oreReg.damage);
 
-            EntityItem newItem = new EntityItem(event.world, oldItem.posX, oldItem.posY, oldItem.posZ, alternativeOre);
-            newItem.delayBeforeCanPickup = oldItem.delayBeforeCanPickup;
-            newItem.motionX = oldItem.motionX;
-            newItem.motionY = oldItem.motionY;
-            newItem.motionZ = oldItem.motionZ;
-            event.world.spawnEntityInWorld(newItem);
+            itemEnt.setEntityItemStack(alternativeOre);
         }
     }
 
     @ForgeSubscribe
     public void oreRegister(OreDictionary.OreRegisterEvent event) {
-        if(event.Name.startsWith("ore"))
-            AlternativeOreDrop.registerOre(event.Name, event.Ore);
+        for(String id : AlternativeOreDrop.identifiers)
+            if(event.Name.startsWith(id))
+                AlternativeOreDrop.addOrRegisterOre(event.Name, event.Ore);
     }
 }
