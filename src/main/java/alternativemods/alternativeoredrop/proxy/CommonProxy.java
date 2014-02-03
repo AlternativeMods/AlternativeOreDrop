@@ -5,9 +5,8 @@ package alternativemods.alternativeoredrop.proxy;
  * Date: 02.02.14
  * Time: 21:05
  */
-public class CommonProxy extends ClientProxy {
+public class CommonProxy {
 
-    @Override
     public void openConfigGui() {}
 
 }

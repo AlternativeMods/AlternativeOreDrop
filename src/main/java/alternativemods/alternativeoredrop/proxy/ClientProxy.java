@@ -8,10 +8,13 @@ import net.minecraft.client.Minecraft;
  * Date: 02.02.14
  * Time: 21:06
  */
-public class ClientProxy {
+public class ClientProxy extends CommonProxy {
 
+    @Override
     public void openConfigGui() {
+        System.out.println("Opening the gui!");
         Minecraft.getMinecraft().displayGuiScreen(new GuiConfigScreen());
+        super.openConfigGui();
     }
 
 }
