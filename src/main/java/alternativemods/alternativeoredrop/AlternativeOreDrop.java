@@ -62,7 +62,6 @@ public class AlternativeOreDrop {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         instance = this;
-        proxy = new CommonProxy();
 
         fileDir = event.getModConfigurationDirectory() + "/AlternativeMods/AlternativeOreDrop";
     }
