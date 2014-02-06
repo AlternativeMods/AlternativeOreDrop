@@ -54,7 +54,7 @@ public class AlternativeOreDrop {
     @SidedProxy(clientSide = "alternativemods.alternativeoredrop.proxy.ClientProxy", serverSide = "alternativemods.alternativeoredrop.proxy.CommonProxy")
     public static CommonProxy proxy;
 
-    private static Map<String, ArrayList<OreRegister>> oreMap = new HashMap<String, ArrayList<OreRegister>>();
+    public static Map<String, ArrayList<OreRegister>> oreMap = new HashMap<String, ArrayList<OreRegister>>();
     public static String[] identifiers = new String[]{};
     public static boolean recreateRegister = false;
     private static String fileDir;
@@ -159,7 +159,10 @@ public class AlternativeOreDrop {
         if(!oreMap.containsKey(oreName)) {
             ArrayList<OreRegister> regs = new ArrayList<OreRegister>();
             for(ItemStack is : stack) {
-                regs.add(new OreRegister(is.itemID, is.getItemDamage(), getModIdForItem(is)));
+                int dmg = is.getItemDamage();
+                if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+                    dmg = 0;
+                regs.add(new OreRegister(is.itemID, dmg, getModIdForItem(is)));
             }
             oreMap.put(oreName, regs);
         }
@@ -176,6 +179,13 @@ public class AlternativeOreDrop {
             stList.add(new OreRegister(stack.itemID, stack.getItemDamage(), getModIdForItem(stack)));
             oreMap.put(oreName, stList);
         }
+    }
+
+    public static ArrayList<OreRegister> getOresForName(Map<String, ArrayList<OreRegister>> oreMap, String oreName) {
+        ArrayList<OreRegister> list = oreMap.get(oreName);
+        if(list == null || list.isEmpty())
+            return null;
+        return list;
     }
 
     public static boolean isOreRegistered(String oreName) {
@@ -195,6 +205,25 @@ public class AlternativeOreDrop {
         if(oreMap.isEmpty())
             return null;
         return oreMap.containsKey(oreName) ? oreMap.get(oreName).get(0) : null;
+    }
+
+    public static void preferOre(String oreName, String modId) {
+        ArrayList<OreRegister> list = oreMap.get(oreName);
+        if(list == null)
+            return;
+
+        OreRegister preferredReg = null;
+        for(OreRegister tempReg : list)
+            if(tempReg.modId.equals(modId)) {
+                preferredReg = tempReg;
+                list.remove(tempReg);
+                break;
+            }
+        list.add(0, preferredReg);
+
+        oreMap.put(oreName, list);
+
+        initiateFirstRegistrations(fileDir);
     }
 
     @Mod.EventHandler

@@ -18,16 +18,33 @@ public class GuiConfigScreen extends GuiScreen {
 
     private GuiTextField identifiers;
     private GuiButton applyIdentifiers;
+    private GuiButton regenerateRegister;
+    private GuiButton changePreferredRegister;
+    private String identifiers_text;
+
+    public GuiConfigScreen() {
+        identifiers_text = StringUtils.join(AlternativeOreDrop.identifiers, ",");
+    }
+
+    public GuiConfigScreen(String identifiers) {
+        identifiers_text = identifiers;
+    }
 
     public void initGui() {
-        this.identifiers = new GuiTextField(this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
+        this.identifiers = new GuiTextField(this.fontRenderer, this.width / 2 - 125, 60, 250, 20);
         this.identifiers.setFocused(true);
-        this.identifiers.setText(StringUtils.join(AlternativeOreDrop.identifiers, ","));
+        this.identifiers.setText(identifiers_text);
 
-        this.applyIdentifiers = new GuiButton(0, this.width / 2 - 73, this.height - 155, 150, 20, "Apply identifiers");
+        this.applyIdentifiers = new GuiButton(0, this.width / 2 - 126, this.height - 155, 120, 20, "Apply identifiers");
         if(this.identifiers.getText().isEmpty())
             this.applyIdentifiers.enabled = false;
         this.buttonList.add(this.applyIdentifiers);
+
+        this.regenerateRegister = new GuiButton(1, this.width / 2 + 6, this.height - 155, 120, 20, "Regenerate Register");
+        this.buttonList.add(this.regenerateRegister);
+
+        this.changePreferredRegister = new GuiButton(2, this.width / 2 - 126, this.height - 55, 253, 20, "Adjust preferred register");
+        this.buttonList.add(this.changePreferredRegister);
     }
 
     protected void actionPerformed(GuiButton button)
@@ -35,12 +52,20 @@ public class GuiConfigScreen extends GuiScreen {
         if(!button.enabled)
             return;
 
-        if(button == applyIdentifiers) {
+        if(button == this.applyIdentifiers) {
             this.mc.thePlayer.addChatMessage("Identifiers set to:");
             this.mc.thePlayer.addChatMessage(identifiers.getText());
 
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdentifiersUpdatePacket(identifiers.getText()));
+            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(1, new String[]{identifiers.getText()}));
             this.mc.thePlayer.closeScreen();
+        }
+        if(button == this.regenerateRegister) {
+            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(2, new String[]{"NONE"}));
+            this.mc.thePlayer.addChatMessage("Succesfully regenerated the register!");
+            this.mc.thePlayer.closeScreen();
+        }
+        if(button == this.changePreferredRegister) {
+            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(3, new String[]{"NONE"}));
         }
     }
 
@@ -82,7 +107,7 @@ public class GuiConfigScreen extends GuiScreen {
     public void drawScreen(int par1, int par2, float par3)
     {
         this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, "AlternativeOreDrop - Configuration screen", this.width / 2, 40, 16777215);
+        this.drawCenteredString(this.fontRenderer, "AlternativeOreDrop - Main configuration", this.width / 2, 40, 16777215);
 
         this.identifiers.drawTextBox();
 

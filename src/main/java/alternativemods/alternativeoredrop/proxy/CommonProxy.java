@@ -8,5 +8,8 @@ package alternativemods.alternativeoredrop.proxy;
 public class CommonProxy {
 
     public void openConfigGui() {}
+    public void openConfigGui(String identifiers) {}
+    public void openAdjustingGui(String identifiers, String oreMapJson) {}
+    public void openAdjustingOreGui(String oreName, String oreMapJson) {}
 
 }
