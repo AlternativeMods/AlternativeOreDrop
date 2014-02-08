@@ -133,8 +133,9 @@ public class AlternativeOreDrop {
         System.out.println("Identifiers: " + StringUtils.join(identifiers, ","));
         for(String oreName : OreDictionary.getOreNames())
             for(String id : identifiers)
-                if(oreName.startsWith(id))
-                    registerOre(oreName, OreDictionary.getOres(oreName));
+                if(!id.isEmpty())
+                    if(oreName.startsWith(id))
+                        registerOre(oreName, OreDictionary.getOres(oreName));
 
         initiateFirstRegistrations(fileDir);
     }
@@ -164,7 +165,8 @@ public class AlternativeOreDrop {
                     dmg = 0;
                 regs.add(new OreRegister(is.itemID, dmg, getModIdForItem(is)));
             }
-            oreMap.put(oreName, regs);
+            if(!regs.isEmpty())
+                oreMap.put(oreName, regs);
         }
     }
 

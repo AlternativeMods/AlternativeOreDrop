@@ -3,7 +3,6 @@ package alternativemods.alternativeoredrop.events;
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.oredict.OreDictionary;
 
