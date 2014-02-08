@@ -1,6 +1,5 @@
 .idea
 .gradle
-classes
 build
 out
 runtime
