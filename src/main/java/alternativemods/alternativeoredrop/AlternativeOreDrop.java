@@ -2,6 +2,7 @@ package alternativemods.alternativeoredrop;
 
 import alternativemods.alternativeoredrop.commands.MainCommand;
 import alternativemods.alternativeoredrop.events.OreDropEventHandler;
+import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.proxy.CommonProxy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,12 +12,12 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.Property;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,17 +33,16 @@ import java.util.Map;
  * Time: 18:44
  */
 @Mod(modid = "AlternativeOreDrop", name = "Alternative Ore Drop", version = "1.0")
-@NetworkMod(clientSideRequired = false, serverSideRequired = false, channels={"AltOreDrop"}, packetHandler = PacketHandler.class)
 @SuppressWarnings("unused")
 public class AlternativeOreDrop {
 
     public static class OreRegister {
-        public int itemID;
+        public Item item;
         public int damage;
         public String modId;
 
-        OreRegister(int itemID, int damage, String modId) {
-            this.itemID = itemID;
+        OreRegister(Item item, int damage, String modId) {
+            this.item = item;
             this.damage = damage;
             this.modId = modId;
         }
@@ -62,6 +62,8 @@ public class AlternativeOreDrop {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         instance = this;
+
+        NetworkHandler.registerChannels(event.getSide());
 
         fileDir = event.getModConfigurationDirectory() + "/AlternativeMods/AlternativeOreDrop";
     }
@@ -163,7 +165,7 @@ public class AlternativeOreDrop {
                 int dmg = is.getItemDamage();
                 if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE)
                     dmg = 0;
-                regs.add(new OreRegister(is.itemID, dmg, getModIdForItem(is)));
+                regs.add(new OreRegister(is.getItem(), dmg, getModIdForItem(is)));
             }
             if(!regs.isEmpty())
                 oreMap.put(oreName, regs);
@@ -173,12 +175,12 @@ public class AlternativeOreDrop {
     public static void addOrRegisterOre(String oreName, ItemStack stack) {
         if(oreMap.containsKey(oreName)) {
             ArrayList<OreRegister> stList = oreMap.get(oreName);
-            stList.add(new OreRegister(stack.itemID, stack.getItemDamage(), getModIdForItem(stack)));
+            stList.add(new OreRegister(stack.getItem(), stack.getItemDamage(), getModIdForItem(stack)));
             oreMap.put(oreName, stList);
         }
         else {
             ArrayList<OreRegister> stList = new ArrayList<OreRegister>();
-            stList.add(new OreRegister(stack.itemID, stack.getItemDamage(), getModIdForItem(stack)));
+            stList.add(new OreRegister(stack.getItem(), stack.getItemDamage(), getModIdForItem(stack)));
             oreMap.put(oreName, stList);
         }
     }
@@ -200,7 +202,7 @@ public class AlternativeOreDrop {
         if(oreMap.isEmpty())
             return false;
         OreRegister first = oreMap.get(oreName).get(0);
-        return (first.itemID == oreItem.itemID && first.damage == oreItem.getItemDamage());
+        return (first.item == oreItem.getItem() && first.damage == oreItem.getItemDamage());
     }
 
     public static OreRegister returnAlternativeOre(String oreName) {

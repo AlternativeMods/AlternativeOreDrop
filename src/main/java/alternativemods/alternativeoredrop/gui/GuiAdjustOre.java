@@ -1,11 +1,11 @@
 package alternativemods.alternativeoredrop.gui;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import alternativemods.alternativeoredrop.PacketHandler;
+import alternativemods.alternativeoredrop.network.AODPacket;
+import alternativemods.alternativeoredrop.network.NetworkHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cpw.mods.fml.client.GuiScrollingList;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.Tessellator;
@@ -89,14 +89,14 @@ public class GuiAdjustOre extends GuiScreen {
             return;
 
         if(button == this.back) {
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(3, new String[]{"NONE"}));
+            NetworkHandler.sendPacketToServer(NetworkHandler.getProxyPacket(new AODPacket.GuiOpen(3, new String[]{"NONE"})));
         }
         if(button == this.prefer) {
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);
             if(selReg != null) {
-                PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(5, new String[]{oreName, selReg.modId}));
+                NetworkHandler.sendPacketToServer(NetworkHandler.getProxyPacket(new AODPacket.GuiOpen(5, new String[]{oreName, selReg.modId})));
             }
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(3, new String[]{"NONE"}));
+            NetworkHandler.sendPacketToServer(NetworkHandler.getProxyPacket(new AODPacket.GuiOpen(3, new String[]{"NONE"})));
         }
     }
 
@@ -109,7 +109,7 @@ public class GuiAdjustOre extends GuiScreen {
         this.drawDefaultBackground();
 
         this.scrollingList.drawScreen(par1, par2, par3);
-        this.drawCenteredString(this.fontRenderer, "AlternativeOreDrop - Adjusting " + oreName, this.width / 2, 40, 16777215);
+        this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Adjusting " + oreName, this.width / 2, 40, 16777215);
 
         super.drawScreen(par1, par2, par3);
     }

@@ -1,6 +1,7 @@
 package alternativemods.alternativeoredrop.events;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -14,7 +15,7 @@ import net.minecraftforge.oredict.OreDictionary;
 @SuppressWarnings("unused")
 public class OreDropEventHandler {
 
-    @ForgeSubscribe
+    @SubscribeEvent
     public void entJoinWorld(EntityJoinWorldEvent event) {
         if(!(event.entity instanceof EntityItem))
             return;
@@ -25,17 +26,17 @@ public class OreDropEventHandler {
         int stackSize = itemEnt.getEntityItem().stackSize;
 
         ItemStack item = ((EntityItem)event.entity).getEntityItem();
-        item = new ItemStack(item.itemID, 1, item.getItemDamage());
+        item = new ItemStack(item.getItem(), 1, item.getItemDamage());
         String name = OreDictionary.getOreName(OreDictionary.getOreID(item));
         if(AlternativeOreDrop.isOreRegistered(name) && !AlternativeOreDrop.isFirstRegisteredOre(name, item)) {
             AlternativeOreDrop.OreRegister oreReg = AlternativeOreDrop.returnAlternativeOre(name);
-            ItemStack alternativeOre = new ItemStack(oreReg.itemID, stackSize, oreReg.damage);
+            ItemStack alternativeOre = new ItemStack(oreReg.item, stackSize, oreReg.damage);
 
             itemEnt.setEntityItemStack(alternativeOre);
         }
     }
 
-    @ForgeSubscribe
+    @SubscribeEvent
     public void oreRegister(OreDictionary.OreRegisterEvent event) {
         for(String id : AlternativeOreDrop.identifiers)
             if(event.Name.startsWith(id))
