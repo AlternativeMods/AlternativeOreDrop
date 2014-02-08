@@ -1,10 +1,12 @@
 package alternativemods.alternativeoredrop.commands;
 
-import alternativemods.alternativeoredrop.network.AODPacket;
-import alternativemods.alternativeoredrop.network.NetworkHandler;
+import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import alternativemods.alternativeoredrop.PacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Author: Lordmau5
@@ -25,7 +27,7 @@ public class MainCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] astring) {
-        NetworkHandler.sendPacketToPlayer(NetworkHandler.getProxyPacket(new AODPacket.GuiOpen(1, new String[]{"NONE"})), (EntityPlayer) sender);
+        PacketDispatcher.sendPacketToPlayer(PacketHandler.createIdPacket(1, new String[]{StringUtils.join(AlternativeOreDrop.identifiers, ",")}), (Player) sender);
     }
 
     @Override
