@@ -1,9 +1,14 @@
 package alternativemods.alternativeoredrop.proxy;
 
+import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.gui.GuiAdjustOre;
 import alternativemods.alternativeoredrop.gui.GuiAdjustRegister;
 import alternativemods.alternativeoredrop.gui.GuiConfigScreen;
 import net.minecraft.client.Minecraft;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Lordmau5
@@ -25,13 +30,13 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void openAdjustingGui(String identifiers, String oreMapJson) {
+    public void openAdjustingGui(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson) {
         Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustRegister(identifiers, oreMapJson));
         super.openAdjustingGui(identifiers, oreMapJson);
     }
 
     @Override
-    public void openAdjustingOreGui(String oreName, String oreMapJson) {
+    public void openAdjustingOreGui(String oreName, List<AlternativeOreDrop.OreRegister> oreMapJson) {
         Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustOre(oreName, oreMapJson));
         super.openAdjustingOreGui(oreName, oreMapJson);
     }

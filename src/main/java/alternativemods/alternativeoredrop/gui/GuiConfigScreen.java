@@ -1,11 +1,12 @@
 package alternativemods.alternativeoredrop.gui;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import alternativemods.alternativeoredrop.PacketHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import alternativemods.alternativeoredrop.network.AODPacket;
+import alternativemods.alternativeoredrop.network.NetworkHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.ChatComponentText;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 
@@ -31,7 +32,7 @@ public class GuiConfigScreen extends GuiScreen {
     }
 
     public void initGui() {
-        this.identifiers = new GuiTextField(this.fontRenderer, this.width / 2 - 125, 60, 250, 20);
+        this.identifiers = new GuiTextField(this.fontRendererObj, this.width / 2 - 125, 60, 250, 20);
         this.identifiers.setFocused(true);
         this.identifiers.setText(identifiers_text);
 
@@ -53,19 +54,19 @@ public class GuiConfigScreen extends GuiScreen {
             return;
 
         if(button == this.applyIdentifiers) {
-            this.mc.thePlayer.addChatMessage("Identifiers set to:");
-            this.mc.thePlayer.addChatMessage(identifiers.getText());
+            this.mc.thePlayer.addChatMessage(new ChatComponentText("Identifiers set to:"));
+            this.mc.thePlayer.addChatMessage(new ChatComponentText(identifiers.getText()));
 
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(1, new String[]{identifiers.getText()}));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.UpdateIdentifiers(identifiers.getText()));
             this.mc.thePlayer.closeScreen();
         }
         if(button == this.regenerateRegister) {
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(2, new String[]{"NONE"}));
-            this.mc.thePlayer.addChatMessage("Succesfully regenerated the register!");
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.RegenerateRegister());
+            this.mc.thePlayer.addChatMessage(new ChatComponentText("Succesfully regenerated the register!"));
             this.mc.thePlayer.closeScreen();
         }
         if(button == this.changePreferredRegister) {
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(3, new String[]{"NONE"}));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
     }
 
@@ -107,7 +108,7 @@ public class GuiConfigScreen extends GuiScreen {
     public void drawScreen(int par1, int par2, float par3)
     {
         this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, "AlternativeOreDrop - Main configuration", this.width / 2, 40, 16777215);
+        this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Main configuration", this.width / 2, 40, 16777215);
 
         this.identifiers.drawTextBox();
 

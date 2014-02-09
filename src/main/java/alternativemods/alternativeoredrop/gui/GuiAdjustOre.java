@@ -1,18 +1,14 @@
 package alternativemods.alternativeoredrop.gui;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import alternativemods.alternativeoredrop.PacketHandler;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import alternativemods.alternativeoredrop.network.AODPacket;
+import alternativemods.alternativeoredrop.network.NetworkHandler;
 import cpw.mods.fml.client.GuiScrollingList;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.Tessellator;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Author: Lordmau5
@@ -21,19 +17,16 @@ import java.util.Map;
  */
 public class GuiAdjustOre extends GuiScreen {
 
-    private ArrayList<AlternativeOreDrop.OreRegister> ores;
+    private List<AlternativeOreDrop.OreRegister> ores;
     private String oreName;
     private GuiButton back;
     private GuiButton prefer;
     private GuiScrollingList scrollingList;
     private int selected;
 
-    public GuiAdjustOre(String oreName, String oreMapJson) {
+    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap) {
         this.oreName = oreName;
-        Gson gson = new Gson();
-        Type strOreRegMap = new TypeToken<Map<String, ArrayList<AlternativeOreDrop.OreRegister>>>(){}.getType();
-        Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMap = gson.fromJson(oreMapJson, strOreRegMap);
-        ores = AlternativeOreDrop.getOresForName(oreMap, oreName);
+        this.ores = oreMap;
     }
 
     public void initGui() {
@@ -89,14 +82,14 @@ public class GuiAdjustOre extends GuiScreen {
             return;
 
         if(button == this.back) {
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(3, new String[]{"NONE"}));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
         if(button == this.prefer) {
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);
             if(selReg != null) {
-                PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(5, new String[]{oreName, selReg.modId}));
+                NetworkHandler.sendPacketToServer(new AODPacket.Server.PreferOre(oreName, selReg.modId));
             }
-            PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(3, new String[]{"NONE"}));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
     }
 
@@ -109,7 +102,7 @@ public class GuiAdjustOre extends GuiScreen {
         this.drawDefaultBackground();
 
         this.scrollingList.drawScreen(par1, par2, par3);
-        this.drawCenteredString(this.fontRenderer, "AlternativeOreDrop - Adjusting " + oreName, this.width / 2, 40, 16777215);
+        this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Adjusting " + oreName, this.width / 2, 40, 16777215);
 
         super.drawScreen(par1, par2, par3);
     }

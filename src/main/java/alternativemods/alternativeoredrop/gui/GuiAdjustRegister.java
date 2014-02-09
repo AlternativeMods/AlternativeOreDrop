@@ -1,11 +1,9 @@
 package alternativemods.alternativeoredrop.gui;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import alternativemods.alternativeoredrop.PacketHandler;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import alternativemods.alternativeoredrop.network.AODPacket;
+import alternativemods.alternativeoredrop.network.NetworkHandler;
 import cpw.mods.fml.client.GuiScrollingList;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -16,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,11 +33,9 @@ public class GuiAdjustRegister extends GuiScreen {
 
     protected static RenderItem itemRenderer = new RenderItem();
 
-    public GuiAdjustRegister(String identifiers, String oreMapJson) {
+    public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson) {
         this.identifiersText = identifiers;
-        Gson gson = new Gson();
-        Type strOreRegMap = new TypeToken<Map<String, ArrayList<AlternativeOreDrop.OreRegister>>>(){}.getType();
-        this.oreMap = gson.fromJson(oreMapJson, strOreRegMap);
+        this.oreMap = oreMapJson;
     }
 
     public void initGui() {
@@ -97,7 +92,7 @@ public class GuiAdjustRegister extends GuiScreen {
         if(entry.getValue() == null || entry.getValue().isEmpty())
             return;
 
-        PacketDispatcher.sendPacketToServer(PacketHandler.createIdPacket(4, new String[]{entry.getKey()}));
+        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey()));
     }
 
     public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color) {
@@ -107,7 +102,7 @@ public class GuiAdjustRegister extends GuiScreen {
             return;
 
         AlternativeOreDrop.OreRegister reg = entry.getValue().get(0);
-        renderItemStack(new ItemStack(reg.itemID, 1, reg.damage), x + 8, y + 2);
+        renderItemStack(new ItemStack(reg.item, 1, reg.damage), x + 8, y + 2);
     }
 
     public void renderItemStack(ItemStack stack, int x, int y){
@@ -120,7 +115,7 @@ public class GuiAdjustRegister extends GuiScreen {
             font = stack.getItem().getFontRenderer(stack);
         }
         if(font == null){
-            font = fontRenderer;
+            font = fontRendererObj;
         }
         itemRenderer.renderItemAndEffectIntoGUI(font, this.mc.getTextureManager(), stack, x, y);
         itemRenderer.renderItemOverlayIntoGUI(font, this.mc.getTextureManager(), stack, x, y);
@@ -166,7 +161,7 @@ public class GuiAdjustRegister extends GuiScreen {
         this.drawDefaultBackground();
 
         this.scrollingList.drawScreen(par1, par2, par3);
-        this.drawCenteredString(this.fontRenderer, "AlternativeOreDrop - Adjusting Register", this.width / 2, 40, 16777215);
+        this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Adjusting Register", this.width / 2, 40, 16777215);
 
         super.drawScreen(par1, par2, par3);
     }
