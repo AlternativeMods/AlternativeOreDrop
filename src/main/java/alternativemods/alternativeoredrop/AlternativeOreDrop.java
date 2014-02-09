@@ -134,8 +134,10 @@ public class AlternativeOreDrop {
                         oreMap.put(entry.getKey(), reg);
                     }
                 }
+                fr.close();
             }
             catch (FileNotFoundException e) {}
+            catch (IOException e) {}
         }
     }
 
