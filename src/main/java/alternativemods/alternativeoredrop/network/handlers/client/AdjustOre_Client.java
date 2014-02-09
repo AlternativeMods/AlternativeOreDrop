@@ -1,9 +1,10 @@
 package alternativemods.alternativeoredrop.network.handlers.client;
 
-import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import alternativemods.alternativeoredrop.gui.GuiAdjustOre;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.minecraft.client.Minecraft;
 
 /**
  * Author: Lordmau5
@@ -14,6 +15,6 @@ public class AdjustOre_Client extends SimpleChannelInboundHandler<AODPacket.Clie
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.AdjustOre msg) throws Exception {
-        AlternativeOreDrop.proxy.openAdjustingOreGui(msg.oreName, msg.oreMap);
+        Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustOre(msg.oreName, msg.oreMap));
     }
 }

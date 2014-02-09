@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -102,7 +103,7 @@ public class GuiAdjustRegister extends GuiScreen {
             return;
 
         AlternativeOreDrop.OreRegister reg = entry.getValue().get(0);
-        renderItemStack(new ItemStack(reg.item, 1, reg.damage), x + 8, y + 2);
+        renderItemStack(new ItemStack((Item) Item.itemRegistry.getObject(reg.modId + ":" + reg.itemName), 1, reg.damage), x + 8, y + 2);
     }
 
     public void renderItemStack(ItemStack stack, int x, int y){
@@ -111,7 +112,7 @@ public class GuiAdjustRegister extends GuiScreen {
         this.zLevel = 200.0F;
         itemRenderer.zLevel = 200.0F;
         FontRenderer font = null;
-        if(stack != null){
+        if(stack != null && stack.getItem() != null){
             font = stack.getItem().getFontRenderer(stack);
         }
         if(font == null){

@@ -73,7 +73,7 @@ public class GuiAdjustOre extends GuiScreen {
     }
 
     private void drawRegister(AlternativeOreDrop.OreRegister register, int x, int y, int color) {
-        mc.fontRenderer.drawString(register.modId, x + 3, y + 2, color);
+        mc.fontRenderer.drawString(register.modId + ": " + register.itemName, x + 3, y + 2, color);
     }
 
     protected void actionPerformed(GuiButton button)

@@ -1,9 +1,10 @@
 package alternativemods.alternativeoredrop.network.handlers.client;
 
-import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import alternativemods.alternativeoredrop.gui.GuiConfigScreen;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -15,6 +16,6 @@ public class OpenAODGui extends SimpleChannelInboundHandler<AODPacket.Client.Ope
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.OpenAODGui msg) throws Exception {
-        AlternativeOreDrop.proxy.openConfigGui(StringUtils.join(msg.identifiers, ","));
+        Minecraft.getMinecraft().displayGuiScreen(new GuiConfigScreen(StringUtils.join(msg.identifiers, ",")));
     }
 }

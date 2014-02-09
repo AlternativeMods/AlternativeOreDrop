@@ -3,13 +3,9 @@ package alternativemods.alternativeoredrop;
 import alternativemods.alternativeoredrop.commands.MainCommand;
 import alternativemods.alternativeoredrop.events.OreDropEventHandler;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
-import alternativemods.alternativeoredrop.proxy.CommonProxy;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.*;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -23,7 +19,6 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +33,12 @@ import java.util.Map;
 public class AlternativeOreDrop {
 
     public static class OreRegister {
-        public Item item;
+        public String itemName;
         public int damage;
         public String modId;
 
-        OreRegister(Item item, int damage, String modId) {
-            this.item = item;
+        public OreRegister(String itemName, int damage, String modId) {
+            this.itemName = itemName;
             this.damage = damage;
             this.modId = modId;
         }
@@ -51,9 +46,6 @@ public class AlternativeOreDrop {
 
     @Mod.Instance(value = "AlternativeOreDrop")
     public static AlternativeOreDrop instance;
-
-    @SidedProxy(clientSide = "alternativemods.alternativeoredrop.proxy.ClientProxy", serverSide = "alternativemods.alternativeoredrop.proxy.CommonProxy")
-    public static CommonProxy proxy;
 
     public static ArrayListMultimap<String, OreRegister> oreMap = ArrayListMultimap.create();
     public static ArrayListMultimap<String, OreRegister> serverMap = ArrayListMultimap.create();
@@ -71,22 +63,26 @@ public class AlternativeOreDrop {
     }
 
     public static void saveConfig() {
-        Configuration cfg = new Configuration(new File(fileDir + "/config.cfg"));
-        cfg.load();
+        new Thread() {
+            public void run() {
+                Configuration cfg = new Configuration(new File(fileDir + "/config.cfg"));
+                cfg.load();
 
-        Property prop = cfg.get(Configuration.CATEGORY_GENERAL, "Regenerate Register", false);
-        prop.comment = "Set this to true to make the register regenerate itself.\n" +
-                "This is very useful, if you un/-installed one or more mods\n" +
-                "and have to update the register.";
-        prop.set(recreateRegister);
+                Property prop = cfg.get(Configuration.CATEGORY_GENERAL, "Regenerate Register", false);
+                prop.comment = "Set this to true to make the register regenerate itself.\n" +
+                        "This is very useful, if you un/-installed one or more mods\n" +
+                        "and have to update the register.";
+                prop.set(recreateRegister);
 
-        prop = cfg.get(Configuration.CATEGORY_GENERAL, "Identifiers", "ore");
-        prop.comment = "Define the valid identifiers separated by a comma.\n" +
-                "IMPORTANT: The mod checks, if an item / block starts with one of the identifiers.\n" +
-                "If you make any changes to this, setting \"Regenerate Register\" to true is advisable.";
-        prop.set(StringUtils.join(identifiers, ","));
+                prop = cfg.get(Configuration.CATEGORY_GENERAL, "Identifiers", "ore");
+                prop.comment = "Define the valid identifiers separated by a comma.\n" +
+                        "IMPORTANT: The mod checks, if an item / block starts with one of the identifiers.\n" +
+                        "If you make any changes to this, setting \"Regenerate Register\" to true is advisable.";
+                prop.set(StringUtils.join(identifiers, ","));
 
-        cfg.save();
+                cfg.save();
+            }
+        }.start();
     }
 
     @Mod.EventHandler
@@ -114,19 +110,30 @@ public class AlternativeOreDrop {
         cfg.save();
         //---------------------------------------------------------------
 
-        File register = new File(fileDir);
+        File register = new File(fileDir + "/registrations.json");
         if(!register.exists() || recreateRegister) {
-            register.mkdirs();
+            new File(fileDir).mkdirs();
 
             updateRegister();
         }
         else {
             Gson gson = new Gson();
             try {
-                BufferedReader br = new BufferedReader(
-                        new FileReader(fileDir + "/registrations.json"));
-                Type strOreRegMap = new TypeToken<Map<String, ArrayList<OreRegister>>>(){}.getType();
-                oreMap = gson.fromJson(br, strOreRegMap);
+                FileReader fr = new FileReader(fileDir + "/registrations.json");
+                JsonObject jsonBase = (JsonObject) new JsonParser().parse(fr);
+                for(Map.Entry<String, JsonElement> entry : jsonBase.entrySet()) {
+                    JsonArray ar = (JsonArray) entry.getValue();
+                    for(JsonElement el : ar) {
+                        JsonObject obj = (JsonObject) el;
+
+                        String itemName = obj.get("item").getAsString();
+                        int damage = obj.get("damage").getAsInt();
+                        String modId = obj.get("mod").getAsString();
+
+                        OreRegister reg = new OreRegister(itemName, damage, modId);
+                        oreMap.put(entry.getKey(), reg);
+                    }
+                }
             }
             catch (FileNotFoundException e) {}
         }
@@ -135,7 +142,6 @@ public class AlternativeOreDrop {
     public static void updateRegister() {
         oreMap.clear();
         for(String oreName : OreDictionary.getOreNames()) {
-            System.out.println(oreName);
             for(String id : identifiers)
                 if(!id.isEmpty())
                     if(oreName.startsWith(id))
@@ -149,7 +155,20 @@ public class AlternativeOreDrop {
         try {
             FileWriter writer = new FileWriter(new File(dir + "/registrations.json"));
 
-            String oreMap_String = new GsonBuilder().create().toJson(oreMap);
+            JsonObject base = new JsonObject();
+            for(String oreName : oreMap.keySet()) {
+                JsonArray ar = new JsonArray();
+                for(OreRegister reg : oreMap.get(oreName)) {
+                    JsonObject ore = new JsonObject();
+                    ore.addProperty("item", reg.itemName);
+                    ore.addProperty("damage", reg.damage);
+                    ore.addProperty("mod", reg.modId);
+                    ar.add(ore);
+                }
+                base.add(oreName, ar);
+            }
+
+            String oreMap_String = new GsonBuilder().setPrettyPrinting().create().toJson(base);
             writer.write(oreMap_String);
             writer.close();
         }
@@ -166,13 +185,12 @@ public class AlternativeOreDrop {
             int dmg = is.getItemDamage();
             if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE)
                 dmg = 0;
-            oreMap.put(oreName, new OreRegister(is.getItem(), dmg, getModIdForItem(is)));
+            oreMap.put(oreName, new OreRegister(Item.itemRegistry.getNameForObject(is.getItem()).split(":")[1], dmg, getModIdForItem(is)));
         }
-        System.out.println(oreMap.size());
     }
 
     public static void addOrRegisterOre(String oreName, ItemStack stack) {
-        oreMap.put(oreName, new OreRegister(stack.getItem(), stack.getItemDamage(), getModIdForItem(stack)));
+        oreMap.put(oreName, new OreRegister(Item.itemRegistry.getNameForObject(stack.getItem()).split(":")[1], stack.getItemDamage(), getModIdForItem(stack)));
     }
 
     public static List<OreRegister> getOresForName(ArrayListMultimap<String, OreRegister> oreMap, String oreName) {
@@ -192,7 +210,7 @@ public class AlternativeOreDrop {
         if(oreMap.isEmpty() || oreMap.get(oreName).isEmpty())
             return false;
         OreRegister first = oreMap.get(oreName).get(0);
-        return (first.item == oreItem.getItem() && first.damage == oreItem.getItemDamage());
+        return (first.itemName == Item.itemRegistry.getNameForObject(oreItem.getItem()) && first.damage == oreItem.getItemDamage());
     }
 
     public static OreRegister returnAlternativeOre(String oreName) {

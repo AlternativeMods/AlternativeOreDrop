@@ -3,6 +3,7 @@ package alternativemods.alternativeoredrop.events;
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.oredict.OreDictionary;
@@ -30,7 +31,7 @@ public class OreDropEventHandler {
         String name = OreDictionary.getOreName(OreDictionary.getOreID(item));
         if(AlternativeOreDrop.isOreRegistered(name) && !AlternativeOreDrop.isFirstRegisteredOre(name, item)) {
             AlternativeOreDrop.OreRegister oreReg = AlternativeOreDrop.returnAlternativeOre(name);
-            ItemStack alternativeOre = new ItemStack(oreReg.item, stackSize, oreReg.damage);
+            ItemStack alternativeOre = new ItemStack((Item) Item.itemRegistry.getObject(oreReg.modId + ":" + oreReg.itemName), stackSize, oreReg.damage);
 
             itemEnt.setEntityItemStack(alternativeOre);
         }
