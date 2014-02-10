@@ -5,17 +5,23 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-		maven {
+        maven {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            name = "reening"
+            url = "http://maven.reening.nl"
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.1-SNAPSHOT'
+        classpath 'jk_5.gradle:ReeningGradleUpload:0.1-SNAPSHOT'
     }
 }
 
 apply plugin: 'forge'
+apply plugin: 'reening'
 
 group = 'alternativemods'
 version = '1.1.' + System.getenv("TRAVIS_BUILD_NUMBER")
@@ -24,6 +30,10 @@ archivesBaseName = 'AlternativeOreDrop'
 minecraft {
     assetDir = "runtime/client/assets"
     version = '1.7.2-10.12.0.1025'
+}
+
+reening {
+    password = System.getenv("MAVENPASSWORD")
 }
 
 repositories {
@@ -42,7 +52,7 @@ dependencies{
     deployJars 'org.apache.maven.wagon:wagon-ssh:2.2'
 }
 
-uploadArchives {
+/*uploadArchives {
     dependsOn 'reobf'
     repositories {
         mavenDeployer {
@@ -82,4 +92,4 @@ uploadArchives {
             }
         }
     }
-}
+}*/

@@ -2,7 +2,7 @@ language: java
 install: TERM=dumb gradle setupCIWorkspace
 script: TERM=dumb gradle build
 after_success:
-- TERM=dumb gradle uploadArchives
+- TERM=dumb gradle upload
 notifications:
   webhooks:
   - http://n.tkte.ch/h/2127/m63lw4PlbNcGxQwP0MYvaXWq
