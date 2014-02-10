@@ -39,7 +39,7 @@ configurations{
 }
 
 dependencies{
-    deployJars 'org.apache.maven.wagon:wagon-ssh:2.6'
+    deployJars 'org.apache.maven.wagon:wagon-ssh:2.2'
 }
 
 uploadArchives {
