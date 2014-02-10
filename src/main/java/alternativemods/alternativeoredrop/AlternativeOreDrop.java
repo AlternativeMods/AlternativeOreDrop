@@ -154,27 +154,32 @@ public class AlternativeOreDrop {
     }
 
     public static void initiateFirstRegistrations(String dir) {
-        try {
-            FileWriter writer = new FileWriter(new File(dir + "/registrations.json"));
+        final String dirx = dir;
+        new Thread() {
+            public void run() {
+                try {
+                    FileWriter writer = new FileWriter(new File(dirx + "/registrations.json"));
 
-            JsonObject base = new JsonObject();
-            for(String oreName : oreMap.keySet()) {
-                JsonArray ar = new JsonArray();
-                for(OreRegister reg : oreMap.get(oreName)) {
-                    JsonObject ore = new JsonObject();
-                    ore.addProperty("item", reg.itemName);
-                    ore.addProperty("damage", reg.damage);
-                    ore.addProperty("mod", reg.modId);
-                    ar.add(ore);
+                    JsonObject base = new JsonObject();
+                    for(String oreName : oreMap.keySet()) {
+                        JsonArray ar = new JsonArray();
+                        for(OreRegister reg : oreMap.get(oreName)) {
+                            JsonObject ore = new JsonObject();
+                            ore.addProperty("item", reg.itemName);
+                            ore.addProperty("damage", reg.damage);
+                            ore.addProperty("mod", reg.modId);
+                            ar.add(ore);
+                        }
+                        base.add(oreName, ar);
+                    }
+
+                    String oreMap_String = new GsonBuilder().setPrettyPrinting().create().toJson(base);
+                    writer.write(oreMap_String);
+                    writer.close();
                 }
-                base.add(oreName, ar);
+                catch (IOException e) {}
             }
-
-            String oreMap_String = new GsonBuilder().setPrettyPrinting().create().toJson(base);
-            writer.write(oreMap_String);
-            writer.close();
-        }
-        catch (IOException e) {}
+        }.run();
     }
 
     private static String getModIdForItem(ItemStack is) {
@@ -221,22 +226,17 @@ public class AlternativeOreDrop {
         return oreMap.containsKey(oreName) ? oreMap.get(oreName).get(0) : null;
     }
 
-    public static void preferOre(String oreName, String modId) {
+    public static void preferOre(String oreName, OreRegister reg) {
         List<OreRegister> list = oreMap.get(oreName);
         if(list == null)
             return;
 
-        OreRegister preferredReg = null;
         for(OreRegister tempReg : list)
-            if(tempReg.modId.equals(modId)) {
-                preferredReg = tempReg;
-                oreMap.remove(oreName, tempReg);
+            if(tempReg.itemName.equals(reg.itemName) && tempReg.damage == reg.damage && tempReg.modId.equals(reg.modId)) {
+                oreMap.get(oreName).remove(tempReg);
                 break;
             }
-        list.add(0, preferredReg);
-
-        oreMap.removeAll(oreName);
-        oreMap.putAll(oreName, list);
+        oreMap.get(oreName).add(0, reg);
 
         initiateFirstRegistrations(fileDir);
     }
