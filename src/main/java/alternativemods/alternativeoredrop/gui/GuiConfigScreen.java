@@ -28,7 +28,7 @@ public class GuiConfigScreen extends GuiScreen {
     }
 
     public GuiConfigScreen(String identifiers) {
-        identifiers_text = identifiers;
+        identifiers_text = StringUtils.join(identifiers, ",");
     }
 
     public void initGui() {

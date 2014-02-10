@@ -87,7 +87,7 @@ public class GuiAdjustOre extends GuiScreen {
         if(button == this.prefer) {
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);
             if(selReg != null) {
-                NetworkHandler.sendPacketToServer(new AODPacket.Server.PreferOre(oreName, selReg.modId));
+                NetworkHandler.sendPacketToServer(new AODPacket.Server.PreferOre(oreName, selReg));
             }
             NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
