@@ -15,6 +15,17 @@ buildscript {
     }
 }
 
+apply plugin: 'forge'
+
+group = 'alternativemods'
+version = '1.1.' + System.getenv("TRAVIS_BUILD_NUMBER") + '-SNAPSHOT'
+archivesBaseName = 'AlternativeOreDrop'
+
+minecraft {
+    assetDir = "runtime/client/assets"
+    version = '1.7.2-10.12.0.1025'
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -23,21 +34,52 @@ repositories {
     }
 }
 
-apply plugin: 'forge'
+configurations{
+    deployJars
+}
 
-group = 'alternativemods.alternativeoredrop'
-version = '1.1'
-archivesBaseName = 'AlternativeOreDrop'
-
-minecraft {
-    assetDir = "runtime/client/assets"
-    version = '1.7.2-10.12.0.1025'
+dependencies{
+    deployJars 'org.apache.maven.wagon:wagon-ssh:2.6'
 }
 
 uploadArchives {
+    dependsOn 'reobf'
     repositories {
-       flatDir {
-           dirs 'out'
-       }
+        mavenDeployer {
+            configuration = configurations.deployJars
+
+            repository(url: System.getenv("MAVENURL")) {
+                authentication(userName: System.getenv("MAVENUSERNAME"), password: System.getenv("MAVENPASSWORD"))
+            }
+            pom {
+                groupId = project.group
+                version = "${project.minecraft.version}-${project.version}"
+                artifactId = project.archivesBaseName
+                project {
+                    name project.archivesBaseName
+                    packaging 'jar'
+                    description 'AlternativeOreDrop'
+                    url 'https://github.com/AlternativeMods/AlternativeOreDrop'
+
+                    scm {
+                        url 'https://github.com/AlternativeMods/AlternativeOreDrop'
+                        connection 'scm:git:git://github.com/AlternativeMods/AlternativeOreDrop.git'
+                        developerConnection 'scm:git:git@github.com:AlternativeMods/AlternativeOreDrop.git'
+                    }
+
+                    issueManagement {
+                        system 'github'
+                        url 'https://github.com/AlternativeMods/AlternativeOreDrop/issues'
+                    }
+
+                    developers {
+                        developer {
+                            id 'Lordmau5'
+                            name 'Lordmau5'
+                        }
+                    }
+                }
+            }
+        }
     }
 }

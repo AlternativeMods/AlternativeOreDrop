@@ -1,0 +1,13 @@
+language: java
+install: TERM=dumb gradle setupCIWorkspace --stacktrace
+script: TERM=dumb gradle build --stacktrace
+after_success:
+- TERM=dumb gradle uploadArchives --stacktrace
+notifications:
+  webhooks:
+  - http://n.tkte.ch/h/2127/m63lw4PlbNcGxQwP0MYvaXWq
+env:
+  global:
+  - secure: cxAhDdhGqrI1t/2WtQm6K7iTj00UofQdSIiQKn5oLsbE4+xGWxAnYqf+zs/v5t/aEllIEBFAro0W6mcn58bed/wns4SSi0iNHqsXkRHciibAUSWI6v3b7FFxcvOT9tftXPwIOfcXrUuDNIXPInBIy1hKZbH13x5+yhSlA26sIOA=
+  - secure: kkhxD8DtnKCn3d7xkJZO2NPkADnp7aYc/86Rb+Qic/LNGCgm0CwGdTFd13dCBMnzDX9ZYgnwTDFfQ67ntq3csX71byFDcgVoBgV4sPdcItodGjkhb4iKxkUMVxQPKH4W7da7gfSXjq3zGog2dCcVqbkILMZCMgMEL4T6jLl+7OI=
+  - secure: EXijxKbiddjXHGJINLN7g7lO5CrppU1vEcnSNrsV8DVxtMjUaCWrAVDIyRxNVtBaplt57pBHimjFclxB0ixliAZQ6YLtHP1Trp8wbpXWvIfNdclUAuecMBLCQlu8WvTBWnSGu+0W45mlz4dO9h8ddKLqY1DQlSHCazQtFo8FST0=
