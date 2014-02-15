@@ -4,9 +4,14 @@ import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import cpw.mods.fml.client.GuiScrollingList;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -29,13 +34,17 @@ public class GuiAdjustOre extends GuiScreen {
         this.ores = oreMap;
     }
 
+    public void drawHover(String text, int mX, int mY) {
+        drawCreativeTabHoveringText(text, mX, mY);
+    }
+
     public void initGui() {
         this.back = new GuiButton(0, this.width / 2 + 6, this.height - 55, 120, 20, "Back");
         this.buttonList.add(this.back);
         this.prefer = new GuiButton(1, this.width / 2 - 126, this.height - 55, 120, 20, "Prefer");
         this.buttonList.add(this.prefer);
 
-        this.scrollingList = new GuiScrollingList(mc, 253, 150, this.height - 185, this.height - 65, this.width / 2 - 126, 15) {
+        this.scrollingList = new GuiScrollingList(mc, 253, 100, this.height - 145, this.height - 65, this.width / 2 - 126, 15) {
             @Override
             protected int getSize() {
                 return ores.size();
@@ -46,9 +55,15 @@ public class GuiAdjustOre extends GuiScreen {
                 selected = index;
             }
 
+            public void drawSelected() {
+                if(selected != -1)
+                    renderItemStack(ores.get(selected), this.left, this.top - 25, this.listWidth);
+            }
+
             @Override
             public void drawScreen(int mX, int mY, float field) {
                 super.drawScreen(mX, mY, field);
+                drawSelected();
             }
 
             @Override
@@ -70,6 +85,32 @@ public class GuiAdjustOre extends GuiScreen {
                 drawRegister(register, this.left, var3, 0xFFFFFF);
             }
         };
+    }
+
+    public void renderItemStack(AlternativeOreDrop.OreRegister stack, int x, int y, int width){
+        drawRect(x, y - 5, x + width, y + 20, 0xAA000000);
+
+        GL11.glTranslatef(0.0F, 0.0F, 32.0F);
+        RenderHelper.enableGUIStandardItemLighting();
+        this.zLevel = 200.0F;
+        itemRender.zLevel = 200.0F;
+        ItemStack is = null;
+        FontRenderer font = null;
+        if(stack != null){
+            Item tmpItem = (Item) Item.itemRegistry.getObject(stack.itemName);
+            is = new ItemStack(tmpItem, 1, stack.damage);
+            font = tmpItem.getFontRenderer(is);
+        }
+        if(font == null){
+            font = fontRendererObj;
+        }
+        itemRender.renderItemAndEffectIntoGUI(font, this.mc.getTextureManager(), is, x + 5, y);
+        itemRender.renderItemOverlayIntoGUI(font, this.mc.getTextureManager(), is, x + 5, y);
+        this.zLevel = 0.0F;
+        itemRender.zLevel = 0.0F;
+        RenderHelper.enableStandardItemLighting();
+
+        drawString(fontRendererObj, is.getDisplayName(), x + width - fontRendererObj.getStringWidth(is.getDisplayName()) - 5, y + 4, 0xFFFFFFFF);
     }
 
     private void drawRegister(AlternativeOreDrop.OreRegister register, int x, int y, int color) {
