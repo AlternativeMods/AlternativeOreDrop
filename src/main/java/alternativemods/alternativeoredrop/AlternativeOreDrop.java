@@ -44,9 +44,6 @@ public class AlternativeOreDrop {
         }
     }
 
-    @Mod.Instance(value = "AlternativeOreDrop")
-    public static AlternativeOreDrop instance;
-
     public static ArrayListMultimap<String, OreRegister> oreMap = ArrayListMultimap.create();
     public static ArrayListMultimap<String, OreRegister> serverMap = ArrayListMultimap.create();
     public static String[] identifiers = new String[]{};
