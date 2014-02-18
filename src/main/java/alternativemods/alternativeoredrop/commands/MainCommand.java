@@ -4,6 +4,8 @@ import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -26,11 +28,18 @@ public class MainCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] astring) {
-        NetworkHandler.sendPacketToPlayer(new AODPacket.Client.OpenAODGui(AlternativeOreDrop.identifiers), (EntityPlayer) sender);
+        if(sender instanceof EntityPlayer){
+            NetworkHandler.sendPacketToPlayer(new AODPacket.Client.OpenAODGui(AlternativeOreDrop.identifiers), (EntityPlayer) sender);
+        }else{
+            throw new CommandException("This command can only be used by players");
+        }
     }
 
     @Override
     public int compareTo(Object o) {
+        if(o instanceof ICommand){
+            return ((ICommand) o).getCommandName().compareTo(this.getCommandName());
+        }
         return 0;
     }
 }
