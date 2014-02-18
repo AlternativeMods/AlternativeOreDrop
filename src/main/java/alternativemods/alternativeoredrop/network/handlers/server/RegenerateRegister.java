@@ -13,7 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class RegenerateRegister extends SimpleChannelInboundHandler<AODPacket.Server.RegenerateRegister> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.RegenerateRegister msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.RegenerateRegister msg) throws Exception{
         AlternativeOreDrop.updateRegister();
     }
 }

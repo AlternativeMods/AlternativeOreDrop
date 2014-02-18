@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 public class AdjustRegister_Client extends SimpleChannelInboundHandler<AODPacket.Client.AdjustRegister> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.AdjustRegister msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.AdjustRegister msg) throws Exception{
         Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustRegister(StringUtils.join(msg.identifiers), msg.returnList));
     }
 }

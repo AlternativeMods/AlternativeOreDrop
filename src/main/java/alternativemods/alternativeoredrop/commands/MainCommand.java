@@ -17,17 +17,17 @@ import net.minecraft.entity.player.EntityPlayer;
 public class MainCommand extends CommandBase {
 
     @Override
-    public String getCommandName() {
+    public String getCommandName(){
         return "aod";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender icommandsender) {
+    public String getCommandUsage(ICommandSender icommandsender){
         return "aod";
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] astring) {
+    public void processCommand(ICommandSender sender, String[] astring){
         if(sender instanceof EntityPlayer){
             NetworkHandler.sendPacketToPlayer(new AODPacket.Client.OpenAODGui(AlternativeOreDrop.identifiers), (EntityPlayer) sender);
         }else{
@@ -36,7 +36,7 @@ public class MainCommand extends CommandBase {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(Object o){
         if(o instanceof ICommand){
             return ((ICommand) o).getCommandName().compareTo(this.getCommandName());
         }

@@ -23,15 +23,15 @@ public class GuiConfigScreen extends GuiScreen {
     private GuiButton changePreferredRegister;
     private String identifiers_text;
 
-    public GuiConfigScreen() {
+    public GuiConfigScreen(){
         identifiers_text = StringUtils.join(AlternativeOreDrop.identifiers, ",");
     }
 
-    public GuiConfigScreen(String identifiers) {
+    public GuiConfigScreen(String identifiers){
         identifiers_text = StringUtils.join(identifiers, ",");
     }
 
-    public void initGui() {
+    public void initGui(){
         this.identifiers = new GuiTextField(this.fontRendererObj, this.width / 2 - 125, 60, 250, 20);
         this.identifiers.setFocused(true);
         this.identifiers.setText(identifiers_text);
@@ -48,65 +48,58 @@ public class GuiConfigScreen extends GuiScreen {
         this.buttonList.add(this.changePreferredRegister);
     }
 
-    protected void actionPerformed(GuiButton button)
-    {
+    protected void actionPerformed(GuiButton button){
         if(!button.enabled)
             return;
 
-        if(button == this.applyIdentifiers) {
+        if(button == this.applyIdentifiers){
             this.mc.thePlayer.addChatMessage(new ChatComponentText("Identifiers set to:"));
             this.mc.thePlayer.addChatMessage(new ChatComponentText(identifiers.getText()));
 
             NetworkHandler.sendPacketToServer(new AODPacket.Server.UpdateIdentifiers(identifiers.getText()));
             this.mc.thePlayer.closeScreen();
         }
-        if(button == this.regenerateRegister) {
+        if(button == this.regenerateRegister){
             NetworkHandler.sendPacketToServer(new AODPacket.Server.RegenerateRegister());
             this.mc.thePlayer.addChatMessage(new ChatComponentText("Succesfully regenerated the register!"));
             this.mc.thePlayer.closeScreen();
         }
-        if(button == this.changePreferredRegister) {
+        if(button == this.changePreferredRegister){
             NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
     }
 
-    protected void keyTyped(char par1, int par2)
-    {
-        if(par2 == Keyboard.KEY_ESCAPE) {
+    protected void keyTyped(char par1, int par2){
+        if(par2 == Keyboard.KEY_ESCAPE){
             this.mc.thePlayer.closeScreen();
         }
 
-        if (this.identifiers.isFocused())
-        {
+        if(this.identifiers.isFocused()){
             this.identifiers.textboxKeyTyped(par1, par2);
         }
 
-        if (par2 == 28 || par2 == 156)
-        {
+        if(par2 == 28 || par2 == 156){
             this.actionPerformed(this.applyIdentifiers);
         }
 
         this.applyIdentifiers.enabled = this.identifiers.getText().length() > 0;
     }
 
-    protected void mouseClicked(int par1, int par2, int par3)
-    {
+    protected void mouseClicked(int par1, int par2, int par3){
         super.mouseClicked(par1, par2, par3);
 
         this.identifiers.mouseClicked(par1, par2, par3);
     }
 
-    public void updateScreen()
-    {
+    public void updateScreen(){
         this.identifiers.updateCursorCounter();
     }
 
-    public boolean doesGuiPauseGame() {
+    public boolean doesGuiPauseGame(){
         return false;
     }
 
-    public void drawScreen(int par1, int par2, float par3)
-    {
+    public void drawScreen(int par1, int par2, float par3){
         this.drawDefaultBackground();
         this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Main configuration", this.width / 2, 40, 16777215);
 

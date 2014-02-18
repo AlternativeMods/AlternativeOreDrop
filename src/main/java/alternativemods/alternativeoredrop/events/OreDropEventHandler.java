@@ -17,7 +17,7 @@ import net.minecraftforge.oredict.OreDictionary;
 public class OreDropEventHandler {
 
     @SubscribeEvent
-    public void entJoinWorld(EntityJoinWorldEvent event) {
+    public void entJoinWorld(EntityJoinWorldEvent event){
         if(!(event.entity instanceof EntityItem))
             return;
         if(event.world.isRemote)
@@ -26,10 +26,10 @@ public class OreDropEventHandler {
         EntityItem itemEnt = (EntityItem) event.entity;
         int stackSize = itemEnt.getEntityItem().stackSize;
 
-        ItemStack item = ((EntityItem)event.entity).getEntityItem();
+        ItemStack item = itemEnt.getEntityItem();
         item = new ItemStack(item.getItem(), 1, item.getItemDamage());
         String name = OreDictionary.getOreName(OreDictionary.getOreID(item));
-        if(AlternativeOreDrop.isOreRegistered(name) && !AlternativeOreDrop.isFirstRegisteredOre(name, item)) {
+        if(AlternativeOreDrop.isOreRegistered(name) && !AlternativeOreDrop.isFirstRegisteredOre(name, item)){
             AlternativeOreDrop.OreRegister oreReg = AlternativeOreDrop.returnAlternativeOre(name);
             ItemStack alternativeOre = new ItemStack((Item) Item.itemRegistry.getObject(oreReg.modId + ":" + oreReg.itemName), stackSize, oreReg.damage);
 
@@ -38,9 +38,11 @@ public class OreDropEventHandler {
     }
 
     @SubscribeEvent
-    public void oreRegister(OreDictionary.OreRegisterEvent event) {
-        for(String id : AlternativeOreDrop.identifiers)
-            if(event.Name.startsWith(id))
+    public void oreRegister(OreDictionary.OreRegisterEvent event){
+        for(String id : AlternativeOreDrop.identifiers){
+            if(event.Name.startsWith(id)){
                 AlternativeOreDrop.addOrRegisterOre(event.Name, event.Ore);
+            }
+        }
     }
 }

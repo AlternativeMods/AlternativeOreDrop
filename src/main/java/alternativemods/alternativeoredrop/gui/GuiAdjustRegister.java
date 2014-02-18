@@ -34,45 +34,45 @@ public class GuiAdjustRegister extends GuiScreen {
 
     protected static RenderItem itemRenderer = new RenderItem();
 
-    public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson) {
+    public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
         this.identifiersText = identifiers;
         this.oreMap = oreMapJson;
     }
 
-    public void initGui() {
+    public void initGui(){
         this.back = new GuiButton(0, this.width / 2 - 126, this.height - 55, 253, 20, "Back");
         this.buttonList.add(this.back);
 
         this.scrollingList = new GuiScrollingList(mc, 253, 150, this.height - 185, this.height - 65, this.width / 2 - 126, 25) {
             @Override
-            protected int getSize() {
+            protected int getSize(){
                 return oreMap.size();
             }
 
             @Override
-            protected void elementClicked(int index, boolean doubleClick) {
+            protected void elementClicked(int index, boolean doubleClick){
                 selected = index;
                 if(doubleClick)
                     doubleClickOn(index);
             }
 
             @Override
-            public void drawScreen(int mX, int mY, float field) {
+            public void drawScreen(int mX, int mY, float field){
                 super.drawScreen(mX, mY, field);
             }
 
             @Override
-            protected boolean isSelected(int index) {
+            protected boolean isSelected(int index){
                 return index == selected;
             }
 
             @Override
-            protected void drawBackground() {
+            protected void drawBackground(){
 
             }
 
             @Override
-            protected void drawSlot(int listIndex, int var2, int var3, int var4, Tessellator var5) {
+            protected void drawSlot(int listIndex, int var2, int var3, int var4, Tessellator var5){
                 Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry = getIndexOfValue(listIndex);
                 if(entry == null)
                     return;
@@ -86,7 +86,7 @@ public class GuiAdjustRegister extends GuiScreen {
 
     }
 
-    public void doubleClickOn(int index) {
+    public void doubleClickOn(int index){
         Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry = getIndexOfValue(index);
         if(entry == null)
             return;
@@ -96,7 +96,7 @@ public class GuiAdjustRegister extends GuiScreen {
         NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey()));
     }
 
-    public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color) {
+    public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color){
         mc.fontRenderer.drawString(entry.getKey(), x + 40, y + 6, color);
 
         if(entry.getValue().isEmpty())
@@ -125,10 +125,10 @@ public class GuiAdjustRegister extends GuiScreen {
         RenderHelper.enableStandardItemLighting();
     }
 
-    public Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> getIndexOfValue(int key) {
+    public Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> getIndexOfValue(int key){
         int i = 0;
-        for (Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entr : oreMap.entrySet()) {
-            if(i == key) {
+        for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entr : oreMap.entrySet()){
+            if(i == key){
                 return entr;
             }
             i++;
@@ -136,29 +136,26 @@ public class GuiAdjustRegister extends GuiScreen {
         return null;
     }
 
-    protected void actionPerformed(GuiButton button)
-    {
+    protected void actionPerformed(GuiButton button){
         if(!button.enabled)
             return;
 
-        if(button == this.back) {
+        if(button == this.back){
             this.mc.displayGuiScreen(new GuiConfigScreen(identifiersText));
         }
     }
 
-    protected void keyTyped(char par1, int par2)
-    {
-        if(par2 == Keyboard.KEY_ESCAPE) {
+    protected void keyTyped(char par1, int par2){
+        if(par2 == Keyboard.KEY_ESCAPE){
             this.mc.displayGuiScreen(new GuiConfigScreen(identifiersText));
         }
     }
 
-    public boolean doesGuiPauseGame() {
+    public boolean doesGuiPauseGame(){
         return false;
     }
 
-    public void drawScreen(int par1, int par2, float par3)
-    {
+    public void drawScreen(int par1, int par2, float par3){
         this.drawDefaultBackground();
 
         this.scrollingList.drawScreen(par1, par2, par3);

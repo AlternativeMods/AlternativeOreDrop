@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 public class OpenAODGui extends SimpleChannelInboundHandler<AODPacket.Client.OpenAODGui> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.OpenAODGui msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.OpenAODGui msg) throws Exception{
         Minecraft.getMinecraft().displayGuiScreen(new GuiConfigScreen(StringUtils.join(msg.identifiers, ",")));
     }
 }

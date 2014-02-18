@@ -29,16 +29,16 @@ public class GuiAdjustOre extends GuiScreen {
     private GuiScrollingList scrollingList;
     private int selected;
 
-    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap) {
+    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap){
         this.oreName = oreName;
         this.ores = oreMap;
     }
 
-    public void drawHover(String text, int mX, int mY) {
+    public void drawHover(String text, int mX, int mY){
         drawCreativeTabHoveringText(text, mX, mY);
     }
 
-    public void initGui() {
+    public void initGui(){
         this.back = new GuiButton(0, this.width / 2 + 6, this.height - 55, 120, 20, "Back");
         this.buttonList.add(this.back);
         this.prefer = new GuiButton(1, this.width / 2 - 126, this.height - 55, 120, 20, "Prefer");
@@ -46,38 +46,38 @@ public class GuiAdjustOre extends GuiScreen {
 
         this.scrollingList = new GuiScrollingList(mc, 253, 100, this.height - 145, this.height - 65, this.width / 2 - 126, 15) {
             @Override
-            protected int getSize() {
+            protected int getSize(){
                 return ores.size();
             }
 
             @Override
-            protected void elementClicked(int index, boolean doubleClick) {
+            protected void elementClicked(int index, boolean doubleClick){
                 selected = index;
             }
 
-            public void drawSelected() {
+            public void drawSelected(){
                 if(selected != -1)
                     renderItemStack(ores.get(selected), this.left, this.top - 25, this.listWidth);
             }
 
             @Override
-            public void drawScreen(int mX, int mY, float field) {
+            public void drawScreen(int mX, int mY, float field){
                 super.drawScreen(mX, mY, field);
                 drawSelected();
             }
 
             @Override
-            protected boolean isSelected(int index) {
+            protected boolean isSelected(int index){
                 return index == selected;
             }
 
             @Override
-            protected void drawBackground() {
+            protected void drawBackground(){
 
             }
 
             @Override
-            protected void drawSlot(int listIndex, int var2, int var3, int var4, Tessellator var5) {
+            protected void drawSlot(int listIndex, int var2, int var3, int var4, Tessellator var5){
                 AlternativeOreDrop.OreRegister register = ores.get(listIndex);
                 if(register == null)
                     return;
@@ -110,36 +110,35 @@ public class GuiAdjustOre extends GuiScreen {
         itemRender.zLevel = 0.0F;
         RenderHelper.enableStandardItemLighting();
 
+        if(is == null) return;
         drawString(fontRendererObj, is.getDisplayName(), x + width - fontRendererObj.getStringWidth(is.getDisplayName()) - 5, y + 4, 0xFFFFFFFF);
     }
 
-    private void drawRegister(AlternativeOreDrop.OreRegister register, int x, int y, int color) {
+    private void drawRegister(AlternativeOreDrop.OreRegister register, int x, int y, int color){
         mc.fontRenderer.drawString(register.modId + ": " + register.itemName, x + 3, y + 2, color);
     }
 
-    protected void actionPerformed(GuiButton button)
-    {
+    protected void actionPerformed(GuiButton button){
         if(!button.enabled)
             return;
 
-        if(button == this.back) {
+        if(button == this.back){
             NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
-        if(button == this.prefer) {
+        if(button == this.prefer){
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);
-            if(selReg != null) {
+            if(selReg != null){
                 NetworkHandler.sendPacketToServer(new AODPacket.Server.PreferOre(oreName, selReg));
             }
             NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
     }
 
-    public boolean doesGuiPauseGame() {
+    public boolean doesGuiPauseGame(){
         return false;
     }
 
-    public void drawScreen(int par1, int par2, float par3)
-    {
+    public void drawScreen(int par1, int par2, float par3){
         this.drawDefaultBackground();
 
         this.scrollingList.drawScreen(par1, par2, par3);

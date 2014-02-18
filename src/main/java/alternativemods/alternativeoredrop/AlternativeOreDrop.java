@@ -37,7 +37,7 @@ public class AlternativeOreDrop {
         public int damage;
         public String modId;
 
-        public OreRegister(String itemName, int damage, String modId) {
+        public OreRegister(String itemName, int damage, String modId){
             this.itemName = itemName;
             this.damage = damage;
             this.modId = modId;
@@ -54,7 +54,7 @@ public class AlternativeOreDrop {
     private static String fileDir;
 
     @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    public void preInit(FMLPreInitializationEvent event){
         instance = this;
 
         NetworkHandler.registerChannels(event.getSide());
@@ -62,9 +62,9 @@ public class AlternativeOreDrop {
         fileDir = event.getModConfigurationDirectory() + "/AlternativeMods/AlternativeOreDrop";
     }
 
-    public static void saveConfig() {
+    public static void saveConfig(){
         new Thread() {
-            public void run() {
+            public void run(){
                 Configuration cfg = new Configuration(new File(fileDir + "/config.cfg"));
                 cfg.load();
 
@@ -80,13 +80,13 @@ public class AlternativeOreDrop {
                         "If you make any changes to this, setting \"Regenerate Register\" to true is advisable.";
                 prop.set(StringUtils.join(identifiers, ","));
 
-                cfg.save();
+                if(cfg.hasChanged()) cfg.save();
             }
         }.start();
     }
 
     @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
+    public void postInit(FMLPostInitializationEvent event){
         MinecraftForge.EVENT_BUS.register(new OreDropEventHandler());
 
         //---------------------------------------------------------------
@@ -107,23 +107,22 @@ public class AlternativeOreDrop {
         String ids = prop.getString();
         identifiers = ids.split(",");
 
-        cfg.save();
+        if(cfg.hasChanged()) cfg.save();
         //---------------------------------------------------------------
 
         File register = new File(fileDir + "/registrations.json");
-        if(!register.exists() || recreateRegister) {
+        if(!register.exists() || recreateRegister){
             new File(fileDir).mkdirs();
 
             updateRegister();
-        }
-        else {
+        }else{
             Gson gson = new Gson();
-            try {
+            try{
                 FileReader fr = new FileReader(fileDir + "/registrations.json");
                 JsonObject jsonBase = (JsonObject) new JsonParser().parse(fr);
-                for(Map.Entry<String, JsonElement> entry : jsonBase.entrySet()) {
+                for(Map.Entry<String, JsonElement> entry : jsonBase.entrySet()){
                     JsonArray ar = (JsonArray) entry.getValue();
-                    for(JsonElement el : ar) {
+                    for(JsonElement el : ar){
                         JsonObject obj = (JsonObject) el;
 
                         String itemName = obj.get("item").getAsString();
@@ -135,15 +134,15 @@ public class AlternativeOreDrop {
                     }
                 }
                 fr.close();
+            }catch(FileNotFoundException e){
+            }catch(IOException e){
             }
-            catch (FileNotFoundException e) {}
-            catch (IOException e) {}
         }
     }
 
-    public static void updateRegister() {
+    public static void updateRegister(){
         oreMap.clear();
-        for(String oreName : OreDictionary.getOreNames()) {
+        for(String oreName : OreDictionary.getOreNames()){
             for(String id : identifiers)
                 if(!id.isEmpty())
                     if(oreName.startsWith(id))
@@ -153,17 +152,17 @@ public class AlternativeOreDrop {
         initiateFirstRegistrations(fileDir);
     }
 
-    public static void initiateFirstRegistrations(String dir) {
+    public static void initiateFirstRegistrations(String dir){
         final String dirx = dir;
         new Thread() {
-            public void run() {
-                try {
+            public void run(){
+                try{
                     FileWriter writer = new FileWriter(new File(dirx + "/registrations.json"));
 
                     JsonObject base = new JsonObject();
-                    for(String oreName : oreMap.keySet()) {
+                    for(String oreName : oreMap.keySet()){
                         JsonArray ar = new JsonArray();
-                        for(OreRegister reg : oreMap.get(oreName)) {
+                        for(OreRegister reg : oreMap.get(oreName)){
                             JsonObject ore = new JsonObject();
                             ore.addProperty("item", reg.itemName);
                             ore.addProperty("damage", reg.damage);
@@ -176,19 +175,19 @@ public class AlternativeOreDrop {
                     String oreMap_String = new GsonBuilder().setPrettyPrinting().create().toJson(base);
                     writer.write(oreMap_String);
                     writer.close();
+                }catch(IOException e){
                 }
-                catch (IOException e) {}
             }
         }.run();
     }
 
-    private static String getModIdForItem(ItemStack is) {
+    private static String getModIdForItem(ItemStack is){
         GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(is.getItem());
         return id != null ? id.modId : "Minecraft";
     }
 
-    public static void registerOre(String oreName, ArrayList<ItemStack> stack) {
-        for(ItemStack is : stack) {
+    public static void registerOre(String oreName, ArrayList<ItemStack> stack){
+        for(ItemStack is : stack){
             int dmg = is.getItemDamage();
             if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE)
                 dmg = 0;
@@ -196,54 +195,54 @@ public class AlternativeOreDrop {
         }
     }
 
-    public static void addOrRegisterOre(String oreName, ItemStack stack) {
+    public static void addOrRegisterOre(String oreName, ItemStack stack){
         oreMap.put(oreName, new OreRegister(Item.itemRegistry.getNameForObject(stack.getItem()).split(":")[1], stack.getItemDamage(), getModIdForItem(stack)));
     }
 
-    public static List<OreRegister> getOresForName(ArrayListMultimap<String, OreRegister> oreMap, String oreName) {
+    public static List<OreRegister> getOresForName(ArrayListMultimap<String, OreRegister> oreMap, String oreName){
         List<OreRegister> list = oreMap.get(oreName);
         if(list == null || list.isEmpty())
             return null;
         return list;
     }
 
-    public static boolean isOreRegistered(String oreName) {
+    public static boolean isOreRegistered(String oreName){
         if(oreMap.isEmpty())
             return false;
         return oreMap.containsKey(oreName);
     }
 
-    public static boolean isFirstRegisteredOre(String oreName, ItemStack oreItem) {
+    public static boolean isFirstRegisteredOre(String oreName, ItemStack oreItem){
         if(oreMap.isEmpty() || oreMap.get(oreName).isEmpty())
             return false;
         OreRegister first = oreMap.get(oreName).get(0);
         return (first.itemName == Item.itemRegistry.getNameForObject(oreItem.getItem()) && first.damage == oreItem.getItemDamage());
     }
 
-    public static OreRegister returnAlternativeOre(String oreName) {
+    public static OreRegister returnAlternativeOre(String oreName){
         if(oreMap.isEmpty())
             return null;
         return oreMap.containsKey(oreName) ? oreMap.get(oreName).get(0) : null;
     }
 
-    public static void preferOre(String oreName, OreRegister reg) {
+    public static void preferOre(String oreName, OreRegister reg){
         List<OreRegister> list = oreMap.get(oreName);
         if(list == null)
             return;
 
-        for(OreRegister tempReg : list)
-            if(tempReg.itemName.equals(reg.itemName) && tempReg.damage == reg.damage && tempReg.modId.equals(reg.modId)) {
+        for(OreRegister tempReg : list){
+            if(tempReg.itemName.equals(reg.itemName) && tempReg.damage == reg.damage && tempReg.modId.equals(reg.modId)){
                 oreMap.get(oreName).remove(tempReg);
                 break;
             }
+        }
         oreMap.get(oreName).add(0, reg);
 
         initiateFirstRegistrations(fileDir);
     }
 
     @Mod.EventHandler
-    public void serverLoad(FMLServerStartingEvent event)
-    {
+    public void serverLoad(FMLServerStartingEvent event){
         event.registerServerCommand(new MainCommand());
     }
 }

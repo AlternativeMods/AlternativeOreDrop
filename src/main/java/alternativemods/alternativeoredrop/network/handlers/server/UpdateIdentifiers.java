@@ -13,7 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class UpdateIdentifiers extends SimpleChannelInboundHandler<AODPacket.Server.UpdateIdentifiers> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.UpdateIdentifiers msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.UpdateIdentifiers msg) throws Exception{
         AlternativeOreDrop.identifiers = msg.identifiers;
         AlternativeOreDrop.saveConfig();
     }

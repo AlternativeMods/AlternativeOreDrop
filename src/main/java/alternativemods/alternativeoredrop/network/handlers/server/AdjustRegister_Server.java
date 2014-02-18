@@ -13,7 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class AdjustRegister_Server extends SimpleChannelInboundHandler<AODPacket.Server.AdjustRegister> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.AdjustRegister msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.AdjustRegister msg) throws Exception{
         NetworkHandler.sendPacketToPlayer(new AODPacket.Client.AdjustRegister(msg.identifiers, msg.returnList), NetworkHandler.getPlayer(ctx));
     }
 }

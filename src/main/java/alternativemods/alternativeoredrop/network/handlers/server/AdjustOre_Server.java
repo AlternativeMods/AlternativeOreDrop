@@ -13,7 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class AdjustOre_Server extends SimpleChannelInboundHandler<AODPacket.Server.AdjustOre> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.AdjustOre msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.AdjustOre msg) throws Exception{
         NetworkHandler.sendPacketToPlayer(new AODPacket.Client.AdjustOre(msg.oreName, msg.oreMap), NetworkHandler.getPlayer(ctx));
     }
 }

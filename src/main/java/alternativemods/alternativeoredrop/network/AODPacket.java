@@ -23,14 +23,17 @@ import java.util.Map;
  */
 public abstract class AODPacket {
     public abstract void encode(ByteBuf buffer);
+
     public abstract void decode(ByteBuf buffer);
 
     public static abstract class Client {
         public static class OpenAODGui extends AODPacket {
             public String[] identifiers;
 
-            public OpenAODGui() {}
-            public OpenAODGui(String[] identifiers) {
+            public OpenAODGui(){
+            }
+
+            public OpenAODGui(String[] identifiers){
                 this.identifiers = identifiers;
             }
 
@@ -44,7 +47,7 @@ public abstract class AODPacket {
             @Override
             public void decode(ByteBuf buffer){
                 this.identifiers = new String[buffer.readInt()];
-                for(int i=0; i<this.identifiers.length; i++)
+                for(int i = 0; i < this.identifiers.length; i++)
                     this.identifiers[i] = ByteBufUtils.readUTF8String(buffer);
             }
         }
@@ -55,11 +58,13 @@ public abstract class AODPacket {
             public Multimap<String, String> values = HashMultimap.create();
             public Map<String, ArrayList<AlternativeOreDrop.OreRegister>> returnList = new HashMap<String, ArrayList<AlternativeOreDrop.OreRegister>>();
 
-            public AdjustRegister() {}
-            public AdjustRegister(String[] identifiers, ArrayListMultimap<String, AlternativeOreDrop.OreRegister> oreMap) {
+            public AdjustRegister(){
+            }
+
+            public AdjustRegister(String[] identifiers, ArrayListMultimap<String, AlternativeOreDrop.OreRegister> oreMap){
                 this.identifiers = identifiers;
                 this.size = oreMap.size();
-                for(Map.Entry<String, AlternativeOreDrop.OreRegister> reg : oreMap.entries()) {
+                for(Map.Entry<String, AlternativeOreDrop.OreRegister> reg : oreMap.entries()){
                     values.put(reg.getKey(), new GsonBuilder().setPrettyPrinting().create().toJson(reg.getValue()));
                 }
             }
@@ -70,7 +75,7 @@ public abstract class AODPacket {
                 for(String id : this.identifiers)
                     ByteBufUtils.writeUTF8String(buffer, id);
                 buffer.writeInt(this.size);
-                for(Map.Entry<String, String> entry : this.values.entries()) {
+                for(Map.Entry<String, String> entry : this.values.entries()){
                     ByteBufUtils.writeUTF8String(buffer, entry.getKey());
                     ByteBufUtils.writeUTF8String(buffer, entry.getValue());
                 }
@@ -79,20 +84,21 @@ public abstract class AODPacket {
             @Override
             public void decode(ByteBuf buffer){
                 this.identifiers = new String[buffer.readInt()];
-                for(int i=0; i<this.identifiers.length; i++)
+                for(int i = 0; i < this.identifiers.length; i++)
                     this.identifiers[i] = ByteBufUtils.readUTF8String(buffer);
                 this.size = buffer.readInt();
 
                 Gson gson = new Gson();
-                Type oreRegJson = new TypeToken<AlternativeOreDrop.OreRegister>(){}.getType();
+                Type oreRegJson = new TypeToken<AlternativeOreDrop.OreRegister>() {
+                }.getType();
 
                 ArrayListMultimap<String, AlternativeOreDrop.OreRegister> tempList = ArrayListMultimap.create();
 
-                for(int i=0; i<this.size; i++) {
+                for(int i = 0; i < this.size; i++){
                     tempList.put(ByteBufUtils.readUTF8String(buffer), (AlternativeOreDrop.OreRegister) gson.fromJson(ByteBufUtils.readUTF8String(buffer), oreRegJson));
                 }
 
-                for(Map.Entry<String, AlternativeOreDrop.OreRegister> ent : tempList.entries()) {
+                for(Map.Entry<String, AlternativeOreDrop.OreRegister> ent : tempList.entries()){
                     if(this.returnList.get(ent.getKey()) == null)
                         this.returnList.put(ent.getKey(), new ArrayList<AlternativeOreDrop.OreRegister>());
                     this.returnList.get(ent.getKey()).add(ent.getValue());
@@ -104,8 +110,10 @@ public abstract class AODPacket {
             public String oreName;
             public List<AlternativeOreDrop.OreRegister> oreMap = new ArrayList<AlternativeOreDrop.OreRegister>();
 
-            public AdjustOre() {}
-            public AdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap) {
+            public AdjustOre(){
+            }
+
+            public AdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap){
                 this.oreName = oreName;
                 this.oreMap = oreMap;
             }
@@ -114,7 +122,7 @@ public abstract class AODPacket {
             public void encode(ByteBuf buffer){
                 ByteBufUtils.writeUTF8String(buffer, this.oreName);
                 buffer.writeInt(this.oreMap.size());
-                for(AlternativeOreDrop.OreRegister reg : oreMap) {
+                for(AlternativeOreDrop.OreRegister reg : oreMap){
                     ByteBufUtils.writeUTF8String(buffer, reg.itemName);
                     buffer.writeInt(reg.damage);
                     ByteBufUtils.writeUTF8String(buffer, reg.modId);
@@ -126,7 +134,7 @@ public abstract class AODPacket {
                 this.oreName = ByteBufUtils.readUTF8String(buffer);
                 int size = buffer.readInt();
 
-                for(int i=0; i<size; i++) {
+                for(int i = 0; i < size; i++){
                     String itemName = ByteBufUtils.readUTF8String(buffer);
                     int damage = buffer.readInt();
                     String modId = ByteBufUtils.readUTF8String(buffer);
@@ -140,8 +148,10 @@ public abstract class AODPacket {
         public static class UpdateIdentifiers extends AODPacket {
             public String[] identifiers;
 
-            public UpdateIdentifiers() {}
-            public UpdateIdentifiers(String identifiers) {
+            public UpdateIdentifiers(){
+            }
+
+            public UpdateIdentifiers(String identifiers){
                 this.identifiers = identifiers.split(",");
             }
 
@@ -155,19 +165,22 @@ public abstract class AODPacket {
             @Override
             public void decode(ByteBuf buffer){
                 this.identifiers = new String[buffer.readInt()];
-                for(int i=0; i<this.identifiers.length; i++)
+                for(int i = 0; i < this.identifiers.length; i++)
                     this.identifiers[i] = ByteBufUtils.readUTF8String(buffer);
             }
         }
 
         public static class RegenerateRegister extends AODPacket {
-            public RegenerateRegister() {}
+            public RegenerateRegister(){
+            }
 
             @Override
-            public void encode(ByteBuf buffer){}
+            public void encode(ByteBuf buffer){
+            }
 
             @Override
-            public void decode(ByteBuf buffer){}
+            public void decode(ByteBuf buffer){
+            }
         }
 
         public static class AdjustRegister extends AODPacket {
@@ -177,9 +190,9 @@ public abstract class AODPacket {
             public Multimap<String, String> values = HashMultimap.create();
             public ArrayListMultimap<String, AlternativeOreDrop.OreRegister> returnList = ArrayListMultimap.create();
 
-            public AdjustRegister() {
+            public AdjustRegister(){
                 this.size = AlternativeOreDrop.oreMap.size();
-                for(Map.Entry<String, AlternativeOreDrop.OreRegister> reg : AlternativeOreDrop.oreMap.entries()) {
+                for(Map.Entry<String, AlternativeOreDrop.OreRegister> reg : AlternativeOreDrop.oreMap.entries()){
                     values.put(reg.getKey(), new GsonBuilder().setPrettyPrinting().create().toJson(reg.getValue()));
                 }
             }
@@ -190,7 +203,7 @@ public abstract class AODPacket {
                 for(String id : AlternativeOreDrop.identifiers)
                     ByteBufUtils.writeUTF8String(buffer, id);
                 buffer.writeInt(this.size);
-                for(Map.Entry<String, String> entry : this.values.entries()) {
+                for(Map.Entry<String, String> entry : this.values.entries()){
                     ByteBufUtils.writeUTF8String(buffer, entry.getKey());
                     ByteBufUtils.writeUTF8String(buffer, entry.getValue());
                 }
@@ -199,20 +212,21 @@ public abstract class AODPacket {
             @Override
             public void decode(ByteBuf buffer){
                 this.identifiers = new String[buffer.readInt()];
-                for(int i=0; i<this.identifiers.length; i++)
+                for(int i = 0; i < this.identifiers.length; i++)
                     this.identifiers[i] = ByteBufUtils.readUTF8String(buffer);
                 this.size = buffer.readInt();
 
                 Gson gson = new Gson();
-                Type oreRegJson = new TypeToken<AlternativeOreDrop.OreRegister>(){}.getType();
+                Type oreRegJson = new TypeToken<AlternativeOreDrop.OreRegister>() {
+                }.getType();
 
                 ArrayListMultimap<String, AlternativeOreDrop.OreRegister> tempList = ArrayListMultimap.create();
 
-                for(int i=0; i<this.size; i++) {
+                for(int i = 0; i < this.size; i++){
                     tempList.put(ByteBufUtils.readUTF8String(buffer), (AlternativeOreDrop.OreRegister) gson.fromJson(ByteBufUtils.readUTF8String(buffer), oreRegJson));
                 }
 
-                for(Map.Entry<String, AlternativeOreDrop.OreRegister> ent : tempList.entries()) {
+                for(Map.Entry<String, AlternativeOreDrop.OreRegister> ent : tempList.entries()){
                     this.returnList.get(ent.getKey()).add(ent.getValue());
                 }
             }
@@ -223,10 +237,12 @@ public abstract class AODPacket {
 
             public List<AlternativeOreDrop.OreRegister> oreMap = new ArrayList<AlternativeOreDrop.OreRegister>();
 
-            public AdjustOre() {}
-            public AdjustOre(String oreName) {
+            public AdjustOre(){
+            }
+
+            public AdjustOre(String oreName){
                 this.oreName = oreName;
-                for(AlternativeOreDrop.OreRegister reg : AlternativeOreDrop.oreMap.get(oreName)) {
+                for(AlternativeOreDrop.OreRegister reg : AlternativeOreDrop.oreMap.get(oreName)){
                     oreMap.add(reg);
                 }
             }
@@ -235,7 +251,7 @@ public abstract class AODPacket {
             public void encode(ByteBuf buffer){
                 ByteBufUtils.writeUTF8String(buffer, oreName);
                 buffer.writeInt(this.oreMap.size());
-                for(AlternativeOreDrop.OreRegister reg : this.oreMap) {
+                for(AlternativeOreDrop.OreRegister reg : this.oreMap){
                     ByteBufUtils.writeUTF8String(buffer, reg.itemName);
                     buffer.writeInt(reg.damage);
                     ByteBufUtils.writeUTF8String(buffer, reg.modId);
@@ -247,7 +263,7 @@ public abstract class AODPacket {
                 oreName = ByteBufUtils.readUTF8String(buffer);
                 int size = buffer.readInt();
 
-                for(int i=0; i<size; i++) {
+                for(int i = 0; i < size; i++){
                     String itemName = ByteBufUtils.readUTF8String(buffer);
                     int damage = buffer.readInt();
                     String modId = ByteBufUtils.readUTF8String(buffer);
@@ -264,8 +280,10 @@ public abstract class AODPacket {
 
             public AlternativeOreDrop.OreRegister reg;
 
-            public PreferOre() {}
-            public PreferOre(String oreName, AlternativeOreDrop.OreRegister reg) {
+            public PreferOre(){
+            }
+
+            public PreferOre(String oreName, AlternativeOreDrop.OreRegister reg){
                 this.oreName = oreName;
                 this.modId = reg.modId;
                 this.itemName = reg.itemName;
