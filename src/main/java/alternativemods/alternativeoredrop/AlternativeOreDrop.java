@@ -55,8 +55,6 @@ public class AlternativeOreDrop {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
-        instance = this;
-
         NetworkHandler.registerChannels(event.getSide());
 
         fileDir = event.getModConfigurationDirectory() + "/AlternativeMods/AlternativeOreDrop";
