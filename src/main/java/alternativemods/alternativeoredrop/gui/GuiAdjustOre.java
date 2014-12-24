@@ -28,10 +28,12 @@ public class GuiAdjustOre extends GuiScreen {
     private GuiButton prefer;
     private GuiScrollingList scrollingList;
     private int selected = 0;
+    private float registerScrolled = 0f;
 
-    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap){
+    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap, float registerScrolled){
         this.oreName = oreName;
         this.ores = oreMap;
+        this.registerScrolled = registerScrolled;
     }
 
     public void drawHover(String text, int mX, int mY){
@@ -133,14 +135,14 @@ public class GuiAdjustOre extends GuiScreen {
             return;
 
         if(button == this.back){
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(registerScrolled));
         }
         if(button == this.prefer){
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);
             if(selReg != null){
                 NetworkHandler.sendPacketToServer(new AODPacket.Server.PreferOre(oreName, selReg));
             }
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(registerScrolled));
         }
     }
 

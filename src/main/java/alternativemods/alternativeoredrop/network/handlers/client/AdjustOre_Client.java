@@ -15,6 +15,6 @@ public class AdjustOre_Client extends SimpleChannelInboundHandler<AODPacket.Clie
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.AdjustOre msg) throws Exception{
-        Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustOre(msg.oreName, msg.oreMap));
+        Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustOre(msg.oreName, msg.oreMap, msg.registerScrolled));
     }
 }

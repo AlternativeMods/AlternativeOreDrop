@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,12 +32,19 @@ public class GuiAdjustRegister extends GuiScreen {
     private GuiScrollingList scrollingList;
     private Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMap = new HashMap<String, ArrayList<AlternativeOreDrop.OreRegister>>();
     private int selected = -1;
+    private float scrolled = 0f;
 
     protected static RenderItem itemRenderer = new RenderItem();
 
     public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
         this.identifiersText = identifiers;
         this.oreMap = oreMapJson;
+    }
+
+    public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson, float scrolledDistance){
+        this.identifiersText = identifiers;
+        this.oreMap = oreMapJson;
+        scrolled = scrolledDistance;
     }
 
     public void initGui(){
@@ -59,7 +67,7 @@ public class GuiAdjustRegister extends GuiScreen {
             @Override
             public void drawScreen(int mX, int mY, float field){
                 GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                GL11.glScissor(width / 2 - 126, listHeight - 20, width + listWidth, height);
+                GL11.glScissor(width / 2 - 126, listHeight - 20, width + listWidth, 240);
                 super.drawScreen(mX, mY, field);
                 GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
@@ -87,6 +95,17 @@ public class GuiAdjustRegister extends GuiScreen {
             }
         };
 
+        Class<?> c = GuiScrollingList.class;
+        try {
+            Field scrolled = c.getDeclaredField("scrollDistance");
+            scrolled.setAccessible(true);
+            scrolled.setFloat(scrollingList, this.scrolled);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void doubleClickOn(int index){
@@ -96,7 +115,18 @@ public class GuiAdjustRegister extends GuiScreen {
         if(entry.getValue() == null || entry.getValue().isEmpty())
             return;
 
-        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey()));
+        Class<?> c = GuiScrollingList.class;
+        try {
+            Field scrolled = c.getDeclaredField("scrollDistance");
+            scrolled.setAccessible(true);
+            this.scrolled = scrolled.getFloat(scrollingList);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey(), scrolled));
     }
 
     public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color){
