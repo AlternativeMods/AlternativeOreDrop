@@ -18,33 +18,23 @@ buildscript {
 apply plugin: 'forge'
 
 group = 'alternativemods'
-version = '1.2.' + System.getenv("TRAVIS_BUILD_NUMBER")
-archivesBaseName = 'AlternativeOreDrop'
+version = "$minecraft_version-$mod_version"
+
+if (System.env.BUILD_NUMBER != null) version = "$version.$System.env.BUILD_NUMBER"
 
 minecraft {
     assetDir = "runtime/client/assets"
-    version = '1.7.10-10.13.2.1230'
-}
-
-repositories {
-    mavenCentral()
-}
-
-jar {
-    classifier = 'universal'
-    version = "${project.minecraft.version}-${project.version}"
+    version = "$minecraft_version-$forge_version"
 }
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
-    version = "${project.minecraft.version}-${project.version}"
 }
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     classifier = 'deobf'
-    version = "${project.minecraft.version}-${project.version}"
 }
 
 artifacts {
