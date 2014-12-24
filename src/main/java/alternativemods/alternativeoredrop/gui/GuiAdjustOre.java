@@ -27,7 +27,7 @@ public class GuiAdjustOre extends GuiScreen {
     private GuiButton back;
     private GuiButton prefer;
     private GuiScrollingList scrollingList;
-    private int selected;
+    private int selected = 0;
 
     public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap){
         this.oreName = oreName;
@@ -62,7 +62,10 @@ public class GuiAdjustOre extends GuiScreen {
 
             @Override
             public void drawScreen(int mX, int mY, float field){
+                GL11.glEnable(GL11.GL_SCISSOR_TEST);
+                GL11.glScissor(width / 2 - 126, listHeight - 20, width + listWidth, height);
                 super.drawScreen(mX, mY, field);
+                GL11.glDisable(GL11.GL_SCISSOR_TEST);
                 drawSelected();
             }
 
@@ -82,7 +85,8 @@ public class GuiAdjustOre extends GuiScreen {
                 if(register == null)
                     return;
 
-                drawRegister(register, this.left, var3, 0xFFFFFF);
+                int color = listIndex == 0 ? 0x00FF00 : 0xFFFFFF;
+                drawRegister(register, this.left, var3, color);
             }
         };
     }
@@ -92,14 +96,20 @@ public class GuiAdjustOre extends GuiScreen {
 
         GL11.glTranslatef(0.0F, 0.0F, 32.0F);
         RenderHelper.enableGUIStandardItemLighting();
+        RenderHelper.disableStandardItemLighting();
         this.zLevel = 200.0F;
         itemRender.zLevel = 200.0F;
         ItemStack is = null;
         FontRenderer font = null;
         if(stack != null){
-            Item tmpItem = (Item) Item.itemRegistry.getObject(stack.itemName);
+            if(!Item.itemRegistry.containsKey(stack.modId + ":" + stack.itemName))
+                return;
+            Item tmpItem = (Item) Item.itemRegistry.getObject(stack.modId + ":" + stack.itemName);
             is = new ItemStack(tmpItem, 1, stack.damage);
-            font = tmpItem.getFontRenderer(is);
+            if(is.getItem() == null)
+                return;
+            if(tmpItem != null && tmpItem.getFontRenderer(is) != null)
+                font = tmpItem.getFontRenderer(is);
         }
         if(font == null){
             font = fontRendererObj;

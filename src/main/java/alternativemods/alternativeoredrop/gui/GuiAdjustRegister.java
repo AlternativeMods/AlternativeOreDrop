@@ -58,7 +58,10 @@ public class GuiAdjustRegister extends GuiScreen {
 
             @Override
             public void drawScreen(int mX, int mY, float field){
+                GL11.glEnable(GL11.GL_SCISSOR_TEST);
+                GL11.glScissor(width / 2 - 126, listHeight - 20, width + listWidth, height);
                 super.drawScreen(mX, mY, field);
+                GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
 
             @Override
@@ -109,6 +112,7 @@ public class GuiAdjustRegister extends GuiScreen {
     public void renderItemStack(ItemStack stack, int x, int y){
         GL11.glTranslatef(0.0F, 0.0F, 32.0F);
         RenderHelper.enableGUIStandardItemLighting();
+        RenderHelper.disableStandardItemLighting();
         this.zLevel = 200.0F;
         itemRenderer.zLevel = 200.0F;
         FontRenderer font = null;

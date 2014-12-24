@@ -9,40 +9,25 @@ buildscript {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
-        maven {
-            name = "reening"
-            url = "http://maven.reening.nl"
-        }
     }
     dependencies {
-        classpath 'com.jcraft:jsch:0.1.50'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.1-SNAPSHOT'
-        classpath 'jk_5.gradle:ReeningGradleUpload:0.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
-apply plugin: 'reening'
 apply plugin: 'forge'
 
 group = 'alternativemods'
-version = '1.1.' + System.getenv("TRAVIS_BUILD_NUMBER")
+version = '1.2.' + System.getenv("TRAVIS_BUILD_NUMBER")
 archivesBaseName = 'AlternativeOreDrop'
 
 minecraft {
     assetDir = "runtime/client/assets"
-    version = '1.7.2-10.12.0.1029'
-}
-
-reening {
-    password = System.getenv("MAVENPASSWORD")
+    version = '1.7.10-10.13.2.1230'
 }
 
 repositories {
     mavenCentral()
-    maven {
-        name = "reening"
-        url = "http://maven.reening.nl"
-    }
 }
 
 jar {
