@@ -66,13 +66,17 @@ public class AlternativeOreDrop {
                 Property prop = cfg.get(Configuration.CATEGORY_GENERAL, "Regenerate Register", false);
                 prop.comment = "Set this to true to make the register regenerate itself.\n" +
                         "This is very useful, if you un/-installed one or more mods\n" +
-                        "and have to update the register.";
+                        "and have to update the register." +
+                        "" +
+                        "Note: Can also be done through the configuration-GUI.";
                 prop.set(recreateRegister);
 
                 prop = cfg.get(Configuration.CATEGORY_GENERAL, "Identifiers", "ore");
                 prop.comment = "Define the valid identifiers separated by a comma.\n" +
                         "IMPORTANT: The mod checks, if an item / block starts with one of the identifiers.\n" +
-                        "If you make any changes to this, setting \"Regenerate Register\" to true is advisable.";
+                        "If you make any changes to this, setting \"Regenerate Register\" to true is advisable." +
+                        "" +
+                        "Note: Can also be done through the configuration-GUI.";
                 prop.set(StringUtils.join(identifiers, ","));
 
                 if(cfg.hasChanged()) cfg.save();
