@@ -3,6 +3,7 @@ package alternativemods.alternativeoredrop.gui;
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
+import alternativemods.alternativeoredrop.variables.ClientVars;
 import cpw.mods.fml.client.GuiScrollingList;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -27,24 +28,15 @@ import java.util.Map;
  */
 public class GuiAdjustRegister extends GuiScreen {
 
-    private String identifiersText;
     private GuiButton back;
     private GuiScrollingList scrollingList;
     private Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMap = new HashMap<String, ArrayList<AlternativeOreDrop.OreRegister>>();
     private int selected = -1;
-    private float scrolled = 0f;
 
     protected static RenderItem itemRenderer = new RenderItem();
 
-    public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
-        this.identifiersText = identifiers;
+    public GuiAdjustRegister(Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
         this.oreMap = oreMapJson;
-    }
-
-    public GuiAdjustRegister(String identifiers, Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson, float scrolledDistance){
-        this.identifiersText = identifiers;
-        this.oreMap = oreMapJson;
-        scrolled = scrolledDistance;
     }
 
     public void initGui(){
@@ -99,7 +91,7 @@ public class GuiAdjustRegister extends GuiScreen {
         try {
             Field scrolled = c.getDeclaredField("scrollDistance");
             scrolled.setAccessible(true);
-            scrolled.setFloat(scrollingList, this.scrolled);
+            scrolled.setFloat(scrollingList, ClientVars.scrollDistance);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -119,14 +111,14 @@ public class GuiAdjustRegister extends GuiScreen {
         try {
             Field scrolled = c.getDeclaredField("scrollDistance");
             scrolled.setAccessible(true);
-            this.scrolled = scrolled.getFloat(scrollingList);
+            ClientVars.scrollDistance = scrolled.getFloat(scrollingList);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
 
-        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey(), scrolled));
+        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey()));
     }
 
     public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color){
@@ -156,7 +148,7 @@ public class GuiAdjustRegister extends GuiScreen {
         itemRenderer.renderItemOverlayIntoGUI(font, this.mc.getTextureManager(), stack, x, y);
         this.zLevel = 0.0F;
         itemRenderer.zLevel = 0.0F;
-        RenderHelper.enableStandardItemLighting();
+        RenderHelper.enableGUIStandardItemLighting();
     }
 
     public Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> getIndexOfValue(int key){
@@ -175,13 +167,13 @@ public class GuiAdjustRegister extends GuiScreen {
             return;
 
         if(button == this.back){
-            this.mc.displayGuiScreen(new GuiConfigScreen(identifiersText));
+            this.mc.displayGuiScreen(new GuiConfigScreen(ClientVars.serverIdentifiers));
         }
     }
 
     protected void keyTyped(char par1, int par2){
         if(par2 == Keyboard.KEY_ESCAPE){
-            this.mc.displayGuiScreen(new GuiConfigScreen(identifiersText));
+            this.mc.displayGuiScreen(new GuiConfigScreen(ClientVars.serverIdentifiers));
         }
     }
 

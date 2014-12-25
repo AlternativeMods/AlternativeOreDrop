@@ -14,6 +14,6 @@ public class AdjustOre_Server extends SimpleChannelInboundHandler<AODPacket.Serv
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.AdjustOre msg) throws Exception{
-        NetworkHandler.sendPacketToPlayer(new AODPacket.Client.AdjustOre(msg.oreName, msg.oreMap, msg.registerScrolled), NetworkHandler.getPlayer(ctx));
+        NetworkHandler.sendPacketToPlayer(new AODPacket.Client.AdjustOre(msg.oreName, msg.oreMap), NetworkHandler.getPlayer(ctx));
     }
 }

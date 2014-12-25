@@ -1,13 +1,12 @@
 package alternativemods.alternativeoredrop.gui;
 
-import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
+import alternativemods.alternativeoredrop.variables.ClientVars;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ChatComponentText;
-import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 
 /**
@@ -21,20 +20,20 @@ public class GuiConfigScreen extends GuiScreen {
     private GuiButton applyIdentifiers;
     private GuiButton regenerateRegister;
     private GuiButton changePreferredRegister;
-    private String identifiers_text;
 
     public GuiConfigScreen(){
-        identifiers_text = StringUtils.join(AlternativeOreDrop.identifiers, ",");
+        ClientVars.serverIdentifiers = "";
     }
 
     public GuiConfigScreen(String identifiers){
-        identifiers_text = identifiers;
+        ClientVars.serverIdentifiers = identifiers;
+        System.out.println(identifiers + " - " + ClientVars.serverIdentifiers);
     }
 
     public void initGui(){
         this.identifiers = new GuiTextField(this.fontRendererObj, this.width / 2 - 125, 60, 250, 20);
         this.identifiers.setFocused(true);
-        this.identifiers.setText(identifiers_text);
+        this.identifiers.setText(ClientVars.serverIdentifiers);
 
         this.applyIdentifiers = new GuiButton(0, this.width / 2 - 126, this.height - 155, 120, 20, "Apply identifiers");
         if(this.identifiers.getText().isEmpty())
@@ -65,7 +64,7 @@ public class GuiConfigScreen extends GuiScreen {
             this.mc.thePlayer.closeScreen();
         }
         if(button == this.changePreferredRegister){
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(0f));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
     }
 

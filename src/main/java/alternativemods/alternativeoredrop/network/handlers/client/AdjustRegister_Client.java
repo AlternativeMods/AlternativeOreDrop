@@ -5,7 +5,6 @@ import alternativemods.alternativeoredrop.network.AODPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.minecraft.client.Minecraft;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Author: Lordmau5
@@ -16,6 +15,6 @@ public class AdjustRegister_Client extends SimpleChannelInboundHandler<AODPacket
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.AdjustRegister msg) throws Exception{
-        Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustRegister(StringUtils.join(msg.identifiers, ","), msg.returnList, msg.registerScrolled));
+        Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustRegister(msg.returnList));
     }
 }

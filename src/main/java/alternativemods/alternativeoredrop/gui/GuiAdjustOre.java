@@ -27,13 +27,11 @@ public class GuiAdjustOre extends GuiScreen {
     private GuiButton back;
     private GuiButton prefer;
     private GuiScrollingList scrollingList;
-    private int selected = 0;
-    private float registerScrolled = 0f;
+    private int selected = -1;
 
-    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap, float registerScrolled){
+    public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap){
         this.oreName = oreName;
         this.ores = oreMap;
-        this.registerScrolled = registerScrolled;
     }
 
     public void drawHover(String text, int mX, int mY){
@@ -120,7 +118,7 @@ public class GuiAdjustOre extends GuiScreen {
         itemRender.renderItemOverlayIntoGUI(font, this.mc.getTextureManager(), is, x + 5, y);
         this.zLevel = 0.0F;
         itemRender.zLevel = 0.0F;
-        RenderHelper.enableStandardItemLighting();
+        RenderHelper.enableGUIStandardItemLighting();
 
         if(is == null) return;
         drawString(fontRendererObj, is.getDisplayName(), x + width - fontRendererObj.getStringWidth(is.getDisplayName()) - 5, y + 4, 0xFFFFFFFF);
@@ -135,14 +133,14 @@ public class GuiAdjustOre extends GuiScreen {
             return;
 
         if(button == this.back){
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(registerScrolled));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
         if(button == this.prefer){
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);
             if(selReg != null){
                 NetworkHandler.sendPacketToServer(new AODPacket.Server.PreferOre(oreName, selReg));
             }
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(registerScrolled));
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
         }
     }
 
