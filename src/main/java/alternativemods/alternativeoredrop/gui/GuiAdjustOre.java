@@ -27,7 +27,7 @@ public class GuiAdjustOre extends GuiScreen {
     private GuiButton back;
     private GuiButton prefer;
     private GuiScrollingList scrollingList;
-    private int selected = -1;
+    private int selected = 0;
 
     public GuiAdjustOre(String oreName, List<AlternativeOreDrop.OreRegister> oreMap){
         this.oreName = oreName;
@@ -56,7 +56,7 @@ public class GuiAdjustOre extends GuiScreen {
             }
 
             public void drawSelected(){
-                if(selected != -1)
+                if(selected != -1 && !ores.isEmpty())
                     renderItemStack(ores.get(selected), this.left, this.top - 25, this.listWidth);
             }
 

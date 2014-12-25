@@ -118,7 +118,7 @@ public class GuiAdjustRegister extends GuiScreen {
             e.printStackTrace();
         }
 
-        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry.getKey()));
+        NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry));
     }
 
     public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color){

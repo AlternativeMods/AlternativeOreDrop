@@ -27,7 +27,6 @@ public class GuiConfigScreen extends GuiScreen {
 
     public GuiConfigScreen(String identifiers){
         ClientVars.serverIdentifiers = identifiers;
-        System.out.println(identifiers + " - " + ClientVars.serverIdentifiers);
     }
 
     public void initGui(){

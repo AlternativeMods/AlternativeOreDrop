@@ -220,17 +220,14 @@ public abstract class AODPacket {
 
         public static class AdjustOre extends AODPacket {
             public String oreName;
-
             public List<AlternativeOreDrop.OreRegister> oreMap = new ArrayList<AlternativeOreDrop.OreRegister>();
 
             public AdjustOre(){
             }
 
-            public AdjustOre(String oreName){
-                this.oreName = oreName;
-                for(AlternativeOreDrop.OreRegister reg : AlternativeOreDrop.oreMap.get(oreName)){
-                    oreMap.add(reg);
-                }
+            public AdjustOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry){
+                this.oreName = entry.getKey();
+                this.oreMap = entry.getValue();
             }
 
             @Override
