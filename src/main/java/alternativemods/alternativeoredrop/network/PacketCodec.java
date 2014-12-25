@@ -15,12 +15,13 @@ public class PacketCodec extends FMLIndexedMessageToMessageCodec<AODPacket> {
         this.addDiscriminator(0, AODPacket.Client.OpenAODGui.class);
         this.addDiscriminator(1, AODPacket.Client.AdjustRegister.class);
         this.addDiscriminator(2, AODPacket.Client.AdjustOre.class);
+        this.addDiscriminator(3, AODPacket.Client.PreferOre.class);
 
-        this.addDiscriminator(3, AODPacket.Server.UpdateIdentifiers.class);
-        this.addDiscriminator(4, AODPacket.Server.RegenerateRegister.class);
-        this.addDiscriminator(5, AODPacket.Server.AdjustRegister.class);
-        this.addDiscriminator(6, AODPacket.Server.AdjustOre.class);
-        this.addDiscriminator(7, AODPacket.Server.PreferOre.class);
+        this.addDiscriminator(4, AODPacket.Server.UpdateIdentifiers.class);
+        this.addDiscriminator(5, AODPacket.Server.RegenerateRegister.class);
+        this.addDiscriminator(6, AODPacket.Server.AdjustRegister.class);
+        this.addDiscriminator(7, AODPacket.Server.AdjustOre.class);
+        this.addDiscriminator(8, AODPacket.Server.PreferOre.class);
     }
 
     @Override

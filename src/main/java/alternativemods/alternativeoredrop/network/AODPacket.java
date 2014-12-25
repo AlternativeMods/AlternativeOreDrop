@@ -154,6 +154,39 @@ public abstract class AODPacket {
                 }
             }
         }
+
+        public static class PreferOre extends AODPacket {
+            public String oreName;
+            private String modId;
+            private String itemName;
+            private int damage;
+
+            public AlternativeOreDrop.OreRegister reg;
+
+            public PreferOre(){
+            }
+
+            public PreferOre(String oreName, AlternativeOreDrop.OreRegister reg){
+                this.oreName = oreName;
+                this.modId = reg.modId;
+                this.itemName = reg.itemName;
+                this.damage = reg.damage;
+            }
+
+            @Override
+            public void encode(ByteBuf buffer){
+                ByteBufUtils.writeUTF8String(buffer, oreName);
+                ByteBufUtils.writeUTF8String(buffer, itemName);
+                buffer.writeInt(damage);
+                ByteBufUtils.writeUTF8String(buffer, modId);
+            }
+
+            @Override
+            public void decode(ByteBuf buffer){
+                oreName = ByteBufUtils.readUTF8String(buffer);
+                reg = new AlternativeOreDrop.OreRegister(ByteBufUtils.readUTF8String(buffer), buffer.readInt(), ByteBufUtils.readUTF8String(buffer));
+            }
+        }
     }
 
     public static class Server {

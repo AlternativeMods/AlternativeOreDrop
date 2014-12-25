@@ -3,6 +3,7 @@ package alternativemods.alternativeoredrop.network;
 import alternativemods.alternativeoredrop.network.handlers.client.AdjustOre_Client;
 import alternativemods.alternativeoredrop.network.handlers.client.AdjustRegister_Client;
 import alternativemods.alternativeoredrop.network.handlers.client.OpenAODGui;
+import alternativemods.alternativeoredrop.network.handlers.client.PreferOre_Client;
 import alternativemods.alternativeoredrop.network.handlers.server.*;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
@@ -37,7 +38,7 @@ public class NetworkHandler {
         pipeline.addAfter(targetName, "RegenerateRegister", new RegenerateRegister());
         pipeline.addAfter(targetName, "AdjustRegister_Server", new AdjustRegister_Server());
         pipeline.addAfter(targetName, "AdjustOre_Server", new AdjustOre_Server());
-        pipeline.addAfter(targetName, "PreferOre", new PreferOre());
+        pipeline.addAfter(targetName, "PreferOre_Server", new PreferOre_Server());
 
         if(side.isClient()){
             registerClientHandlers();
@@ -52,6 +53,7 @@ public class NetworkHandler {
         pipeline.addAfter(targetName, "OpenAODGui", new OpenAODGui());
         pipeline.addAfter(targetName, "AdjustRegister_Client", new AdjustRegister_Client());
         pipeline.addAfter(targetName, "AdjustOre_Client", new AdjustOre_Client());
+        pipeline.addAfter(targetName, "PreferOre_Client", new PreferOre_Client());
     }
 
     public static Packet getProxyPacket(AODPacket packet){
@@ -62,6 +64,12 @@ public class NetworkHandler {
         FMLEmbeddedChannel channel = channels.get(Side.SERVER);
         channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
         channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
+        channel.writeOutbound(packet);
+    }
+
+    public static void sendPacketToAllPlayers(AODPacket packet){
+        FMLEmbeddedChannel channel = channels.get(Side.SERVER);
+        channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.ALL);
         channel.writeOutbound(packet);
     }
 
