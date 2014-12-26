@@ -3,6 +3,7 @@ package alternativemods.alternativeoredrop;
 import alternativemods.alternativeoredrop.commands.MainCommand;
 import alternativemods.alternativeoredrop.events.OreDropEventHandler;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
+import alternativemods.alternativeoredrop.variables.ClientVars;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.*;
 import cpw.mods.fml.common.Mod;
@@ -19,9 +20,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Lordmau5
@@ -42,10 +41,18 @@ public class AlternativeOreDrop {
             this.damage = damage;
             this.modId = modId;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(obj instanceof OreRegister) {
+                OreRegister other = (OreRegister) obj;
+                return other.damage == damage && other.itemName.equals(itemName) && other.modId.equals(modId);
+            }
+            return super.equals(obj);
+        }
     }
 
-    public static ArrayListMultimap<String, OreRegister> oreMap = ArrayListMultimap.create();
-    public static ArrayListMultimap<String, OreRegister> serverMap = ArrayListMultimap.create();
+    public static TreeMap<String, ArrayList<OreRegister>> oreMap = new TreeMap<String, ArrayList<OreRegister>>();
     public static String[] identifiers = new String[]{};
     public static boolean recreateRegister = false;
     private static String fileDir;
@@ -129,7 +136,11 @@ public class AlternativeOreDrop {
                         String modId = obj.get("mod").getAsString();
 
                         OreRegister reg = new OreRegister(itemName, damage, modId);
-                        oreMap.put(entry.getKey(), reg);
+                        ArrayList<OreRegister> oreReg = oreMap.get(entry.getKey());
+                        if(oreReg == null)
+                            oreReg = new ArrayList<OreRegister>();
+                        oreReg.add(reg);
+                        oreMap.put(entry.getKey(), oreReg);
                     }
                 }
                 fr.close();
@@ -190,12 +201,22 @@ public class AlternativeOreDrop {
             int dmg = is.getItemDamage();
             if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE)
                 dmg = 0;
-            oreMap.put(oreName, new OreRegister(Item.itemRegistry.getNameForObject(is.getItem()).split(":")[1], dmg, getModIdForItem(is)));
+            ArrayList<OreRegister> oreReg = oreMap.get(oreName);
+            if(oreReg == null)
+                oreReg = new ArrayList<OreRegister>();
+            OreRegister reg = new OreRegister(Item.itemRegistry.getNameForObject(is.getItem()).split(":")[1], dmg, getModIdForItem(is));
+            if(!oreReg.contains(reg))
+                oreReg.add(new OreRegister(Item.itemRegistry.getNameForObject(is.getItem()).split(":")[1], dmg, getModIdForItem(is)));
+            oreMap.put(oreName, oreReg);
         }
     }
 
     public static void addOrRegisterOre(String oreName, ItemStack stack){
-        oreMap.put(oreName, new OreRegister(Item.itemRegistry.getNameForObject(stack.getItem()).split(":")[1], stack.getItemDamage(), getModIdForItem(stack)));
+        ArrayList<OreRegister> oreReg = oreMap.get(oreName);
+        if(oreReg == null)
+            oreReg = new ArrayList<OreRegister>();
+        oreReg.add(new OreRegister(Item.itemRegistry.getNameForObject(stack.getItem()).split(":")[1], stack.getItemDamage(), getModIdForItem(stack)));
+        oreMap.put(oreName, oreReg);
     }
 
     public static List<OreRegister> getOresForName(ArrayListMultimap<String, OreRegister> oreMap, String oreName){
@@ -224,20 +245,29 @@ public class AlternativeOreDrop {
         return oreMap.containsKey(oreName) ? oreMap.get(oreName).get(0) : null;
     }
 
-    public static void preferOre(String oreName, OreRegister reg){
-        List<OreRegister> list = oreMap.get(oreName);
+    public static void preferOre(String oreName, OreRegister reg, boolean isDedicated){
+        TreeMap<String, ArrayList<OreRegister>> usageMap = isDedicated ? ClientVars.oreMap : oreMap;
+
+        preferOreOnMap(oreName, reg, usageMap);
+
+        if(!isDedicated) {
+            preferOreOnMap(oreName, reg, ClientVars.sortMap);
+            initiateFirstRegistrations(fileDir);
+        }
+    }
+
+    private static void preferOreOnMap(String oreName, OreRegister reg, TreeMap<String, ArrayList<OreRegister>> map) {
+        List<OreRegister> list = map.get(oreName);
         if(list == null)
             return;
 
         for(OreRegister tempReg : list){
             if(tempReg.itemName.equals(reg.itemName) && tempReg.damage == reg.damage && tempReg.modId.equals(reg.modId)){
-                oreMap.get(oreName).remove(tempReg);
+                map.get(oreName).remove(tempReg);
                 break;
             }
         }
-        oreMap.get(oreName).add(0, reg);
-
-        initiateFirstRegistrations(fileDir);
+        map.get(oreName).add(0, reg);
     }
 
     @Mod.EventHandler

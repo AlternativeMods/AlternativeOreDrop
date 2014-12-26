@@ -63,7 +63,7 @@ public class GuiConfigScreen extends GuiScreen {
             this.mc.thePlayer.closeScreen();
         }
         if(button == this.changePreferredRegister){
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(true));
         }
     }
 

@@ -12,6 +12,6 @@ public class PreferOre_Client extends SimpleChannelInboundHandler<AODPacket.Clie
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Client.PreferOre msg) throws Exception{
-        AlternativeOreDrop.preferOre(msg.oreName, msg.reg);
+        AlternativeOreDrop.preferOre(msg.oreName, msg.reg, msg.isDedicated);
     }
 }

@@ -1,20 +1,10 @@
 package alternativemods.alternativeoredrop.network;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Lordmau5
@@ -53,47 +43,49 @@ public abstract class AODPacket {
         }
 
         public static class AdjustRegister extends AODPacket {
-            public int size;
-            public Multimap<String, String> values = HashMultimap.create();
-            public Map<String, ArrayList<AlternativeOreDrop.OreRegister>> returnList = new HashMap<String, ArrayList<AlternativeOreDrop.OreRegister>>();
+            public int size = 0;
+            public TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>> returnList;
 
             public AdjustRegister(){
             }
 
-            public AdjustRegister(ArrayListMultimap<String, AlternativeOreDrop.OreRegister> oreMap){
+            public AdjustRegister(TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMap){
                 this.size = oreMap.size();
-                for(Map.Entry<String, AlternativeOreDrop.OreRegister> reg : oreMap.entries()){
-                    values.put(reg.getKey(), new GsonBuilder().setPrettyPrinting().create().toJson(reg.getValue()));
-                }
+                this.returnList = oreMap;
             }
 
             @Override
             public void encode(ByteBuf buffer){
                 buffer.writeInt(this.size);
-                for(Map.Entry<String, String> entry : this.values.entries()){
-                    ByteBufUtils.writeUTF8String(buffer, entry.getKey());
-                    ByteBufUtils.writeUTF8String(buffer, entry.getValue());
+                if(returnList != null) {
+                    for (Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry : this.returnList.entrySet()) {
+                        ByteBufUtils.writeUTF8String(buffer, entry.getKey());
+                        buffer.writeInt(entry.getValue().size());
+                        for (AlternativeOreDrop.OreRegister reg : entry.getValue()) {
+                            ByteBufUtils.writeUTF8String(buffer, reg.itemName);
+                            buffer.writeInt(reg.damage);
+                            ByteBufUtils.writeUTF8String(buffer, reg.modId);
+                        }
+                    }
                 }
             }
 
             @Override
             public void decode(ByteBuf buffer){
                 this.size = buffer.readInt();
+                if(size == 0)
+                    return;
 
-                Gson gson = new Gson();
-                Type oreRegJson = new TypeToken<AlternativeOreDrop.OreRegister>() {
-                }.getType();
+                returnList = new TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>>();
 
-                ArrayListMultimap<String, AlternativeOreDrop.OreRegister> tempList = ArrayListMultimap.create();
-
-                for(int i = 0; i < this.size; i++){
-                    tempList.put(ByteBufUtils.readUTF8String(buffer), (AlternativeOreDrop.OreRegister) gson.fromJson(ByteBufUtils.readUTF8String(buffer), oreRegJson));
-                }
-
-                for(Map.Entry<String, AlternativeOreDrop.OreRegister> ent : tempList.entries()){
-                    if(this.returnList.get(ent.getKey()) == null)
-                        this.returnList.put(ent.getKey(), new ArrayList<AlternativeOreDrop.OreRegister>());
-                    this.returnList.get(ent.getKey()).add(ent.getValue());
+                for(int i = 0; i < this.size; i++) {
+                    String map = ByteBufUtils.readUTF8String(buffer);
+                    int arraySize = buffer.readInt();
+                    ArrayList<AlternativeOreDrop.OreRegister> oreReg = new ArrayList<AlternativeOreDrop.OreRegister>();
+                    for(int x = 0; x < arraySize; x++) {
+                        oreReg.add(new AlternativeOreDrop.OreRegister(ByteBufUtils.readUTF8String(buffer), buffer.readInt(), ByteBufUtils.readUTF8String(buffer)));
+                    }
+                    returnList.put(map, oreReg);
                 }
             }
         }
@@ -140,17 +132,19 @@ public abstract class AODPacket {
             private String modId;
             private String itemName;
             private int damage;
+            public boolean isDedicated;
 
             public AlternativeOreDrop.OreRegister reg;
 
             public PreferOre(){
             }
 
-            public PreferOre(String oreName, AlternativeOreDrop.OreRegister reg){
+            public PreferOre(String oreName, AlternativeOreDrop.OreRegister reg, boolean isDedicated){
                 this.oreName = oreName;
                 this.modId = reg.modId;
                 this.itemName = reg.itemName;
                 this.damage = reg.damage;
+                this.isDedicated  = isDedicated;
             }
 
             @Override
@@ -159,12 +153,14 @@ public abstract class AODPacket {
                 ByteBufUtils.writeUTF8String(buffer, itemName);
                 buffer.writeInt(damage);
                 ByteBufUtils.writeUTF8String(buffer, modId);
+                buffer.writeBoolean(isDedicated);
             }
 
             @Override
             public void decode(ByteBuf buffer){
                 oreName = ByteBufUtils.readUTF8String(buffer);
                 reg = new AlternativeOreDrop.OreRegister(ByteBufUtils.readUTF8String(buffer), buffer.readInt(), ByteBufUtils.readUTF8String(buffer));
+                isDedicated = buffer.readBoolean();
             }
         }
     }
@@ -209,13 +205,23 @@ public abstract class AODPacket {
         }
 
         public static class AdjustRegister extends AODPacket {
+            public boolean init = false;
+
             public AdjustRegister(){}
 
-            @Override
-            public void encode(ByteBuf buffer){}
+            public AdjustRegister(boolean init){
+                this.init = init;
+            }
 
             @Override
-            public void decode(ByteBuf buffer){}
+            public void encode(ByteBuf buffer){
+                buffer.writeBoolean(init);
+            }
+
+            @Override
+            public void decode(ByteBuf buffer){
+                init = buffer.readBoolean();
+            }
         }
 
         public static class AdjustOre extends AODPacket {

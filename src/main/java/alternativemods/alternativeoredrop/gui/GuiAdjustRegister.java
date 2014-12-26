@@ -5,9 +5,11 @@ import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.variables.ClientVars;
 import cpw.mods.fml.client.GuiScrollingList;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -18,8 +20,8 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Author: Lordmau5
@@ -30,23 +32,37 @@ public class GuiAdjustRegister extends GuiScreen {
 
     private GuiButton back;
     private GuiScrollingList scrollingList;
-    private Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMap = new HashMap<String, ArrayList<AlternativeOreDrop.OreRegister>>();
+    private GuiTextField search;
     private int selected = -1;
 
     protected static RenderItem itemRenderer = new RenderItem();
 
-    public GuiAdjustRegister(Map<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
-        this.oreMap = oreMapJson;
+    public GuiAdjustRegister(TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
+        if(oreMapJson != null)
+            ClientVars.oreMap = oreMapJson;
+        ClientVars.sortMap = (TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>>) ClientVars.oreMap.clone();
+    }
+
+    @Override
+    public void setWorldAndResolution(Minecraft p_146280_1_, int p_146280_2_, int p_146280_3_) {
+        super.setWorldAndResolution(p_146280_1_, p_146280_2_, p_146280_3_);
     }
 
     public void initGui(){
-        this.back = new GuiButton(0, this.width / 2 - 126, this.height - 55, 253, 20, "Back");
+        this.back = new GuiButton(0, this.width / 2 - 126, this.height - 25, 253, 20, "Back");
         this.buttonList.add(this.back);
 
-        this.scrollingList = new GuiScrollingList(mc, 253, 150, this.height - 185, this.height - 65, this.width / 2 - 126, 25) {
+        this.search = new GuiTextField(fontRendererObj, this.width / 2 - 124, this.height - 55, 249, 20);
+        this.search.setText(ClientVars.registerSearch);
+
+        int topPos = 60;
+        final int screenHeight = this.height;
+        int height = screenHeight - topPos - 8;
+
+        this.scrollingList = new GuiScrollingList(mc, 253, height, topPos, height, this.width / 2 - 126, 25) {
             @Override
             protected int getSize(){
-                return oreMap.size();
+                return ClientVars.sortMap.size();
             }
 
             @Override
@@ -57,10 +73,12 @@ public class GuiAdjustRegister extends GuiScreen {
             }
 
             @Override
-            public void drawScreen(int mX, int mY, float field){
+            public void drawScreen(int mX, int mY, float partialTick){
+                int topPos = 60;
+                int height = screenHeight - topPos - 8;
                 GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                GL11.glScissor(width / 2 - 126, listHeight - 20, width + listWidth, 240);
-                super.drawScreen(mX, mY, field);
+                GL11.glScissor(width / 2 - 126, screenHeight - height + topPos + 8, width + listWidth, listHeight + topPos - 8);
+                super.drawScreen(mX, mY, partialTick);
                 GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
 
@@ -83,7 +101,7 @@ public class GuiAdjustRegister extends GuiScreen {
                 int color = 0xFFFFFF;
                 if(entry.getValue() == null || entry.getValue().isEmpty())
                     color = 0xFF0000;
-                drawOre(entry, this.left, var3, color);
+                drawOre(entry, listIndex, this.left, var3, color);
             }
         };
 
@@ -98,6 +116,7 @@ public class GuiAdjustRegister extends GuiScreen {
             e.printStackTrace();
         }
 
+        updateSortMap();
     }
 
     public void doubleClickOn(int index){
@@ -118,22 +137,22 @@ public class GuiAdjustRegister extends GuiScreen {
             e.printStackTrace();
         }
 
+        ClientVars.registerSearch = search.getText();
         NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry));
     }
 
-    public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int x, int y, int color){
+    public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int listIndex, int x, int y, int color){
         mc.fontRenderer.drawString(entry.getKey(), x + 40, y + 6, color);
 
         if(entry.getValue().isEmpty())
             return;
 
         AlternativeOreDrop.OreRegister reg = entry.getValue().get(0);
-        renderItemStack(new ItemStack((Item) Item.itemRegistry.getObject(reg.modId + ":" + reg.itemName), 1, reg.damage), x + 8, y + 2);
+        renderItemStack(new ItemStack((Item) Item.itemRegistry.getObject(reg.modId + ":" + reg.itemName), 1, reg.damage), listIndex, x + 8, y + 2);
     }
 
-    public void renderItemStack(ItemStack stack, int x, int y){
+    public void renderItemStack(ItemStack stack, int listIndex, int x, int y){
         GL11.glTranslatef(0.0F, 0.0F, 32.0F);
-        RenderHelper.enableGUIStandardItemLighting();
         RenderHelper.disableStandardItemLighting();
         this.zLevel = 200.0F;
         itemRenderer.zLevel = 200.0F;
@@ -153,7 +172,7 @@ public class GuiAdjustRegister extends GuiScreen {
 
     public Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> getIndexOfValue(int key){
         int i = 0;
-        for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entr : oreMap.entrySet()){
+        for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entr : ClientVars.sortMap.entrySet()){
             if(i == key){
                 return entr;
             }
@@ -175,6 +194,26 @@ public class GuiAdjustRegister extends GuiScreen {
         if(par2 == Keyboard.KEY_ESCAPE){
             this.mc.displayGuiScreen(new GuiConfigScreen(ClientVars.serverIdentifiers));
         }
+        typeTextbox(par1, par2);
+    }
+
+    private void typeTextbox(char par1, int par2) {
+        this.search.textboxKeyTyped(par1, par2);
+
+        updateSortMap();
+    }
+
+    private void updateSortMap() {
+        ClientVars.sortMap.clear();
+
+        if(this.search.getText().isEmpty()) {
+            ClientVars.sortMap = (TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>>) ClientVars.oreMap.clone();
+            return;
+        }
+
+        for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> ent : ClientVars.oreMap.entrySet())
+            if (ent.getKey().toLowerCase().contains(this.search.getText().toLowerCase()))
+                ClientVars.sortMap.put(ent.getKey(), ent.getValue());
     }
 
     public boolean doesGuiPauseGame(){
@@ -186,8 +225,14 @@ public class GuiAdjustRegister extends GuiScreen {
 
         this.scrollingList.drawScreen(par1, par2, par3);
         this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Adjusting Register", this.width / 2, 40, 16777215);
+        this.search.drawTextBox();
 
         super.drawScreen(par1, par2, par3);
     }
 
+    @Override
+    protected void mouseClicked(int p_73864_1_, int p_73864_2_, int p_73864_3_) {
+        this.search.mouseClicked(p_73864_1_, p_73864_2_, p_73864_3_);
+        super.mouseClicked(p_73864_1_, p_73864_2_, p_73864_3_);
+    }
 }

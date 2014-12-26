@@ -4,6 +4,7 @@ import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import cpw.mods.fml.client.GuiScrollingList;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -133,7 +134,7 @@ public class GuiAdjustOre extends GuiScreen {
             return;
 
         if(button == this.back){
-            NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister());
+            Minecraft.getMinecraft().displayGuiScreen(new GuiAdjustRegister(null));
         }
         if(button == this.prefer){
             AlternativeOreDrop.OreRegister selReg = ores.get(selected);

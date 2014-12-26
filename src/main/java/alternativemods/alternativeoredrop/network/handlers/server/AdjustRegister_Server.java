@@ -15,6 +15,6 @@ public class AdjustRegister_Server extends SimpleChannelInboundHandler<AODPacket
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.AdjustRegister msg) throws Exception{
-        NetworkHandler.sendPacketToPlayer(new AODPacket.Client.AdjustRegister(AlternativeOreDrop.oreMap), NetworkHandler.getPlayer(ctx));
+        NetworkHandler.sendPacketToPlayer(msg.init ? new AODPacket.Client.AdjustRegister(AlternativeOreDrop.oreMap) : new AODPacket.Client.AdjustRegister(), NetworkHandler.getPlayer(ctx));
     }
 }
