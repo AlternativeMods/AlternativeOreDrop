@@ -1,7 +1,9 @@
-package alternativemods.alternativeoredrop.gui.adjust;
+package alternativemods.alternativeoredrop.gui.adjust.register;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import alternativemods.alternativeoredrop.events.ClientTickHandler;
 import alternativemods.alternativeoredrop.gui.GuiAdjustRegister;
+import alternativemods.alternativeoredrop.gui.adjust.GuiListExt;
 import alternativemods.alternativeoredrop.variables.ClientVars;
 import net.minecraft.client.Minecraft;
 
@@ -11,12 +13,13 @@ import java.util.Map;
 /**
  * Created by Du5tin on 27.12.2014.
  */
-public class GuiAdjustScrollingList extends GuiListExt<GuiAdjustScrollingEntry> {
+public class GuiAdjustRegisterScrollingList extends GuiListExt<GuiAdjustRegisterScrollingEntry> {
 
     private GuiAdjustRegister parent;
-    public int selected;
+    public GuiAdjustRegisterScrollingEntry selected;
+    private int selectedId;
 
-    public GuiAdjustScrollingList(Minecraft mc, int xCoord, int yCoord, int width, int height, int elementHeight, GuiAdjustRegister parent) {
+    public GuiAdjustRegisterScrollingList(Minecraft mc, int xCoord, int yCoord, int width, int height, int elementHeight, GuiAdjustRegister parent) {
         super(mc, xCoord, yCoord, width, height, elementHeight);
         this.parent = parent;
         updateEntries();
@@ -25,19 +28,22 @@ public class GuiAdjustScrollingList extends GuiListExt<GuiAdjustScrollingEntry> 
     public void updateEntries() {
         entries.clear();
         for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry : ClientVars.sortMap.entrySet())
-            entries.add(new GuiAdjustScrollingEntry(entry.getKey(), entry.getValue(), parent));
+            entries.add(new GuiAdjustRegisterScrollingEntry(entry.getKey(), entry.getValue(), parent));
     }
 
     @Override
     protected void elementClicked(int index, boolean doubleClick, int p_148144_3_, int p_148144_4_) {
         super.elementClicked(index, doubleClick, p_148144_3_, p_148144_4_);
-        entries.get(selected).setSelected(false);
-        selected = index;
-        entries.get(selected).setSelected(true);
+        if(selected != null)
+            selected.setSelected(false);
+        selected = entries.get(index);
+        selected.setSelected(true);
+        selectedId = index;
+        ClientTickHandler.clientTicks = 45;
     }
 
     @Override
     protected boolean isSelected(int index) {
-        return index == selected;
+        return index == selectedId;
     }
 }

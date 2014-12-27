@@ -1,18 +1,17 @@
 package alternativemods.alternativeoredrop.gui;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
-import alternativemods.alternativeoredrop.gui.adjust.GuiAdjustScrollingList;
+import alternativemods.alternativeoredrop.gui.adjust.register.GuiAdjustRegisterScrollingList;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.variables.ClientVars;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ import java.util.TreeMap;
 public class GuiAdjustRegister extends GuiScreen {
 
     private GuiButton back;
-    private GuiAdjustScrollingList scrollingList;
+    private GuiAdjustRegisterScrollingList scrollingList;
     private GuiTextField search;
     public float partialTicks;
 
@@ -56,7 +55,7 @@ public class GuiAdjustRegister extends GuiScreen {
         int topPos = 60;
         int height = this.height - topPos - 8;
 
-        this.scrollingList = new GuiAdjustScrollingList(mc, this.width / 2 - 124, 60, 249, height - topPos, 25, this) {
+        this.scrollingList = new GuiAdjustRegisterScrollingList(mc, this.width / 2 - 124, 60, 250, height - topPos, 25, this) {
 
             @Override
             protected void elementClicked(int index, boolean doubleClick, int p_148144_3_, int p_148144_4_){
@@ -102,35 +101,6 @@ public class GuiAdjustRegister extends GuiScreen {
         NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustOre(entry));
     }
 
-    public void drawOre(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry, int listIndex, int x, int y, int color){
-        mc.fontRenderer.drawString(entry.getKey(), x + 40, y + 6, color);
-
-        if(entry.getValue().isEmpty())
-            return;
-
-        AlternativeOreDrop.OreRegister reg = entry.getValue().get(0);
-        renderItemStack(new ItemStack((Item) Item.itemRegistry.getObject(reg.modId + ":" + reg.itemName), 1, reg.damage), listIndex, x + 8, y + 2);
-    }
-
-    public void renderItemStack(ItemStack stack, int listIndex, int x, int y){
-        GL11.glTranslatef(0.0F, 0.0F, 32.0F);
-        RenderHelper.disableStandardItemLighting();
-        this.zLevel = 200.0F;
-        itemRenderer.zLevel = 200.0F;
-        FontRenderer font = null;
-        if(stack != null && stack.getItem() != null){
-            font = stack.getItem().getFontRenderer(stack);
-        }
-        if(font == null){
-            font = fontRendererObj;
-        }
-        itemRenderer.renderItemAndEffectIntoGUI(font, this.mc.getTextureManager(), stack, x, y);
-        itemRenderer.renderItemOverlayIntoGUI(font, this.mc.getTextureManager(), stack, x, y);
-        this.zLevel = 0.0F;
-        itemRenderer.zLevel = 0.0F;
-        RenderHelper.enableGUIStandardItemLighting();
-    }
-
     public Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> getIndexOfValue(int key){
         int i = 0;
         for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entr : ClientVars.sortMap.entrySet()){
@@ -155,25 +125,16 @@ public class GuiAdjustRegister extends GuiScreen {
         if(par2 == Keyboard.KEY_ESCAPE){
             this.mc.displayGuiScreen(new GuiConfigScreen(ClientVars.serverIdentifiers));
         }
-        typeTextbox(par1, par2);
-    }
-
-    private void typeTextbox(char par1, int par2) {
-        this.search.textboxKeyTyped(par1, par2);
-
+        search.textboxKeyTyped(par1, par2);
         updateSortMap();
     }
 
     private void updateSortMap() {
+        ClientVars.registerSearch = search.getText();
         ClientVars.sortMap.clear();
 
-        if(this.search.getText().isEmpty()) {
-            ClientVars.sortMap = (TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>>) ClientVars.oreMap.clone();
-            return;
-        }
-
         for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> ent : ClientVars.oreMap.entrySet())
-            if (ent.getKey().toLowerCase().contains(this.search.getText().toLowerCase()))
+            if (ent.getKey().toLowerCase().contains(ClientVars.registerSearch.toLowerCase()))
                 ClientVars.sortMap.put(ent.getKey(), ent.getValue());
 
         scrollingList.updateEntries();

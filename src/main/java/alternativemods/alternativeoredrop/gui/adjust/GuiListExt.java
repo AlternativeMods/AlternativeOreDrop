@@ -19,7 +19,7 @@ public class GuiListExt<T extends GuiListExtended.IGuiListEntry> extends GuiList
 
     public GuiListExt(Minecraft mc, int xCoord, int yCoord, int width, int height, int elementHeight)
     {
-        super(mc, width + 6, 0, 0, height, elementHeight);
+        super(mc, width, 0, 0, height, elementHeight);
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.mc = Minecraft.getMinecraft();
@@ -59,7 +59,7 @@ public class GuiListExt<T extends GuiListExtended.IGuiListEntry> extends GuiList
     {
         ScaledResolution scaledresolution = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
         int guiScale = scaledresolution.getScaleFactor();
-        int width = this.width + 6;
+        int width = this.width;
         int height = this.bottom;
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
@@ -92,6 +92,6 @@ public class GuiListExt<T extends GuiListExtended.IGuiListEntry> extends GuiList
     @Override
     protected int getScrollBarX()
     {
-        return this.width;
+        return this.width - 6;
     }
 }
