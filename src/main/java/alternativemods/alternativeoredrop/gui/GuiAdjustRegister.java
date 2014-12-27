@@ -41,7 +41,8 @@ public class GuiAdjustRegister extends GuiScreen {
 
     @Override
     public void setWorldAndResolution(Minecraft p_146280_1_, int p_146280_2_, int p_146280_3_) {
-        ClientVars.registerSearch = search.getText();
+        if(search != null)
+            ClientVars.registerSearch = search.getText();
         super.setWorldAndResolution(p_146280_1_, p_146280_2_, p_146280_3_);
     }
 
