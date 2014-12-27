@@ -29,6 +29,7 @@ public class GuiAdjustRegister extends GuiScreen {
     private GuiButton back;
     private GuiAdjustScrollingList scrollingList;
     private GuiTextField search;
+    public float partialTicks;
 
     protected static RenderItem itemRenderer = new RenderItem();
 
@@ -184,11 +185,12 @@ public class GuiAdjustRegister extends GuiScreen {
 
     public void drawScreen(int par1, int par2, float par3){
         this.drawDefaultBackground();
-
+        
+        this.partialTicks = par3;
         this.scrollingList.drawScreen(par1, par2, par3);
         this.drawCenteredString(this.fontRendererObj, "AlternativeOreDrop - Adjusting Register", this.width / 2, 40, 16777215);
         this.search.drawTextBox();
-
+        
         super.drawScreen(par1, par2, par3);
     }
 
