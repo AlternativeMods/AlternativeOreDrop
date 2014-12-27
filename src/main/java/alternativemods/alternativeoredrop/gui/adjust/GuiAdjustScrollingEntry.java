@@ -1,6 +1,7 @@
 package alternativemods.alternativeoredrop.gui.adjust;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import alternativemods.alternativeoredrop.events.ClientTickHandler;
 import alternativemods.alternativeoredrop.gui.GuiAdjustRegister;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.FontRenderer;
@@ -10,8 +11,10 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -46,61 +49,45 @@ public class GuiAdjustScrollingEntry implements GuiListExtended.IGuiListEntry {
         AlternativeOreDrop.OreRegister reg = ores.get(0);
         ItemStack is = new ItemStack((Item) Item.itemRegistry.getObject(reg.modId + ":" + reg.itemName), 1, reg.damage);
         if(selected)
-            renderIn3D(is);
+            renderIn3D(is, x + 8, y + slotHeight / 2 - 8);
         else {
-            RenderHelper.enableGUIStandardItemLighting();
             RenderHelper.disableStandardItemLighting();
             RenderItem.getInstance().renderItemIntoGUI(fr, parent.mc.renderEngine, is, x + 8, y + slotHeight / 2 - 8, true);
-            RenderHelper.disableStandardItemLighting();
         }
     }
 
-    private void renderIn3D(ItemStack itemstack) {
+    private void renderIn3D(ItemStack itemstack, int x, int y) {
+        
+        //Code is pretty much copy-pasted from renderItemIntoGUI
+        //You probably forgot the translation bit & the texture
+        parent.mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
         Block block = Block.getBlockFromItem(itemstack.getItem());
 
-        GL11.glPushMatrix();
-
-        GL11.glRotatef(0, 0.0F, 1.0F, 0.0F);
-
-        /*if (1 == 1)
-        {
-            GL11.glScalef(1.25F, 1.25F, 1.25F);
-            GL11.glTranslatef(0.0F, 0.05F, 0.0F);
-            GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
-        }*/
-
-        float f9 = 0.25F;
-        int k = block.getRenderType();
-
-        if (k == 1 || k == 19 || k == 12 || k == 2)
-        {
-            f9 = 0.5F;
-        }
-
-        if (block.getRenderBlockPass() > 0)
-        {
+        if (block.getRenderBlockPass() != 0) {
             GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
             GL11.glEnable(GL11.GL_BLEND);
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+            OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+        } else {
+            GL11.glAlphaFunc(GL11.GL_GREATER, 0.5F);
+            GL11.glDisable(GL11.GL_BLEND);
         }
 
-        GL11.glScalef(f9, f9, f9);
-
-        Random random = new Random();
-
         GL11.glPushMatrix();
+        GL11.glTranslatef(x - 2, y + 3, RenderItem.getInstance().zLevel - 3F);
+        GL11.glScalef(10, 10, 10);
+        GL11.glTranslatef(1F, 0.5F, 1F);
+        GL11.glScalef(1, 1, -1);
+        GL11.glRotatef(210, 1, 0, 0);
+        
+        //Alter the multiplier to change the speed
+        float rotation = (ClientTickHandler.clientTicks + parent.partialTicks) * 5;
+        GL11.glRotatef(rotation, 0, 1, 0);
+        
+        GL11.glRotatef(-90, 0, 1, 0);
+        this.renderBlocksRi.renderBlockAsItem(block, itemstack.getItemDamage(), 1);
 
-        //float f6 = (random.nextFloat() * 2.0F - 1.0F) * 0.2F / f9;
-        //float f7 = (random.nextFloat() * 2.0F - 1.0F) * 0.2F / f9;
-        //float f8 = (random.nextFloat() * 2.0F - 1.0F) * 0.2F / f9;
-        //GL11.glTranslatef(f6, f7, f8);
-
-        this.renderBlocksRi.renderBlockAsItem(block, itemstack.getItemDamage(), 1.0F);
-        GL11.glPopMatrix();
-
-        if (block.getRenderBlockPass() > 0)
-        {
-            GL11.glDisable(GL11.GL_BLEND);
+        if (block.getRenderBlockPass() == 0) {
+            GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
         }
 
         GL11.glPopMatrix();

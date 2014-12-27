@@ -1,11 +1,14 @@
 package alternativemods.alternativeoredrop;
 
 import alternativemods.alternativeoredrop.commands.MainCommand;
+import alternativemods.alternativeoredrop.events.ClientTickHandler;
 import alternativemods.alternativeoredrop.events.OreDropEventHandler;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.variables.ClientVars;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.*;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -17,6 +20,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.oredict.OreDictionary;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -60,7 +64,9 @@ public class AlternativeOreDrop {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
         NetworkHandler.registerChannels(event.getSide());
-
+        
+        if(event.getSide().isClient()) new ClientTickHandler();
+        
         fileDir = event.getModConfigurationDirectory() + "/AlternativeMods/AlternativeOreDrop";
     }
 
