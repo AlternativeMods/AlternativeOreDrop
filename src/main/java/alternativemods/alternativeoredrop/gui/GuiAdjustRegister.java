@@ -1,13 +1,13 @@
 package alternativemods.alternativeoredrop.gui;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
+import alternativemods.alternativeoredrop.gui.adjust.GuiAdjustScrollingList;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.variables.ClientVars;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -27,9 +27,8 @@ import java.util.TreeMap;
 public class GuiAdjustRegister extends GuiScreen {
 
     private GuiButton back;
-    private GuiListExt scrollingList;
+    private GuiAdjustScrollingList scrollingList;
     private GuiTextField search;
-    private int selected = -1;
 
     protected static RenderItem itemRenderer = new RenderItem();
 
@@ -56,44 +55,13 @@ public class GuiAdjustRegister extends GuiScreen {
         int topPos = 60;
         int height = this.height - topPos - 8;
 
-        this.scrollingList = new GuiListExt(mc, this.width / 2 - 124, 60, 249, height - topPos, 25) {
-            @Override
-            protected int getSize(){
-                return ClientVars.sortMap.size();
-            }
+        this.scrollingList = new GuiAdjustScrollingList(mc, this.width / 2 - 124, 60, 249, height - topPos, 25, this) {
 
             @Override
             protected void elementClicked(int index, boolean doubleClick, int p_148144_3_, int p_148144_4_){
-                selected = index;
+                super.elementClicked(index, doubleClick, p_148144_3_, p_148144_4_);
                 if(doubleClick)
                     doubleClickOn(index);
-            }
-
-            @Override
-            public void drawScreen(int mX, int mY, float partialTick){
-                super.drawScreen(mX, mY, partialTick);
-            }
-
-            @Override
-            protected boolean isSelected(int index){
-                return index == selected;
-            }
-
-            @Override
-            protected void drawBackground(){
-
-            }
-
-            @Override
-            protected void drawSlot(int listIndex, int x, int y, int par4, Tessellator tes, int par6, int par7){
-                Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry = getIndexOfValue(listIndex);
-                if(entry == null)
-                    return;
-
-                int color = 0xFFFFFF;
-                if(entry.getValue() == null || entry.getValue().isEmpty())
-                    color = 0xFF0000;
-                drawOre(entry, listIndex, this.left, y, color);
             }
         };
 
@@ -206,6 +174,8 @@ public class GuiAdjustRegister extends GuiScreen {
         for(Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> ent : ClientVars.oreMap.entrySet())
             if (ent.getKey().toLowerCase().contains(this.search.getText().toLowerCase()))
                 ClientVars.sortMap.put(ent.getKey(), ent.getValue());
+
+        scrollingList.updateEntries();
     }
 
     public boolean doesGuiPauseGame(){
@@ -223,8 +193,9 @@ public class GuiAdjustRegister extends GuiScreen {
     }
 
     @Override
-    protected void mouseClicked(int p_73864_1_, int p_73864_2_, int p_73864_3_) {
-        this.search.mouseClicked(p_73864_1_, p_73864_2_, p_73864_3_);
-        super.mouseClicked(p_73864_1_, p_73864_2_, p_73864_3_);
+    protected void mouseClicked(int x, int y, int button) {
+        this.search.mouseClicked(x, y, button);
+        if(button != 0 || !scrollingList.mouseClicked(x, y, button))
+            super.mouseClicked(x, y, button);
     }
 }

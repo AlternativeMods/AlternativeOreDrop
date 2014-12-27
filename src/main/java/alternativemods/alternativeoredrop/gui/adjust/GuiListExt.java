@@ -1,4 +1,4 @@
-package alternativemods.alternativeoredrop.gui;
+package alternativemods.alternativeoredrop.gui.adjust;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiListExtended;
@@ -19,7 +19,7 @@ public class GuiListExt<T extends GuiListExtended.IGuiListEntry> extends GuiList
 
     public GuiListExt(Minecraft mc, int xCoord, int yCoord, int width, int height, int elementHeight)
     {
-        super(mc, width - 6, 0, 0, height, elementHeight);
+        super(mc, width + 6, 0, 0, height, elementHeight);
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.mc = Minecraft.getMinecraft();
