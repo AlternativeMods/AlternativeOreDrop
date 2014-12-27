@@ -1,5 +1,6 @@
 package alternativemods.alternativeoredrop.events;
 
+import cpw.mods.fml.client.GuiIngameModOptions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -19,7 +20,7 @@ public class ClientTickHandler {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == Phase.END) {
             GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-            if (gui == null || !gui.doesGuiPauseGame())
+            if (gui == null || !gui.doesGuiPauseGame() || gui instanceof GuiIngameModOptions)
                 clientTicks++;
         }
     }
