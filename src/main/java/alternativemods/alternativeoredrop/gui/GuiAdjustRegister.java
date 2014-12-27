@@ -4,12 +4,8 @@ import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
 import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.variables.ClientVars;
-import cpw.mods.fml.client.GuiScrollingList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -31,7 +27,7 @@ import java.util.TreeMap;
 public class GuiAdjustRegister extends GuiScreen {
 
     private GuiButton back;
-    private GuiScrollingList scrollingList;
+    private GuiListExt scrollingList;
     private GuiTextField search;
     private int selected = -1;
 
@@ -45,6 +41,7 @@ public class GuiAdjustRegister extends GuiScreen {
 
     @Override
     public void setWorldAndResolution(Minecraft p_146280_1_, int p_146280_2_, int p_146280_3_) {
+        ClientVars.registerSearch = search.getText();
         super.setWorldAndResolution(p_146280_1_, p_146280_2_, p_146280_3_);
     }
 
@@ -56,17 +53,16 @@ public class GuiAdjustRegister extends GuiScreen {
         this.search.setText(ClientVars.registerSearch);
 
         int topPos = 60;
-        final int screenHeight = this.height;
-        int height = screenHeight - topPos - 8;
+        int height = this.height - topPos - 8;
 
-        this.scrollingList = new GuiScrollingList(mc, 253, height, topPos, height, this.width / 2 - 126, 25) {
+        this.scrollingList = new GuiListExt(mc, this.width / 2 - 124, 60, 249, height - topPos, 25) {
             @Override
             protected int getSize(){
                 return ClientVars.sortMap.size();
             }
 
             @Override
-            protected void elementClicked(int index, boolean doubleClick){
+            protected void elementClicked(int index, boolean doubleClick, int p_148144_3_, int p_148144_4_){
                 selected = index;
                 if(doubleClick)
                     doubleClickOn(index);
@@ -74,12 +70,7 @@ public class GuiAdjustRegister extends GuiScreen {
 
             @Override
             public void drawScreen(int mX, int mY, float partialTick){
-                int topPos = 60;
-                int height = screenHeight - topPos - 8;
-                GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                GL11.glScissor(width / 2 - 126, screenHeight - height + topPos + 8, width + listWidth, listHeight + topPos - 8);
                 super.drawScreen(mX, mY, partialTick);
-                GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
 
             @Override
@@ -93,7 +84,7 @@ public class GuiAdjustRegister extends GuiScreen {
             }
 
             @Override
-            protected void drawSlot(int listIndex, int var2, int var3, int var4, Tessellator var5){
+            protected void drawSlot(int listIndex, int x, int y, int par4, Tessellator tes, int par6, int par7){
                 Map.Entry<String, ArrayList<AlternativeOreDrop.OreRegister>> entry = getIndexOfValue(listIndex);
                 if(entry == null)
                     return;
@@ -101,13 +92,13 @@ public class GuiAdjustRegister extends GuiScreen {
                 int color = 0xFFFFFF;
                 if(entry.getValue() == null || entry.getValue().isEmpty())
                     color = 0xFF0000;
-                drawOre(entry, listIndex, this.left, var3, color);
+                drawOre(entry, listIndex, this.left, y, color);
             }
         };
 
-        Class<?> c = GuiScrollingList.class;
+        Class<?> c = GuiSlot.class;
         try {
-            Field scrolled = c.getDeclaredField("scrollDistance");
+            Field scrolled = c.getDeclaredField("amountScrolled");
             scrolled.setAccessible(true);
             scrolled.setFloat(scrollingList, ClientVars.scrollDistance);
         } catch (NoSuchFieldException e) {
@@ -126,9 +117,9 @@ public class GuiAdjustRegister extends GuiScreen {
         if(entry.getValue() == null || entry.getValue().isEmpty())
             return;
 
-        Class<?> c = GuiScrollingList.class;
+        Class<?> c = GuiSlot.class;
         try {
-            Field scrolled = c.getDeclaredField("scrollDistance");
+            Field scrolled = c.getDeclaredField("amountScrolled");
             scrolled.setAccessible(true);
             ClientVars.scrollDistance = scrolled.getFloat(scrollingList);
         } catch (NoSuchFieldException e) {
