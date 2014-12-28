@@ -8,11 +8,13 @@ import alternativemods.alternativeoredrop.network.NetworkHandler;
 import alternativemods.alternativeoredrop.variables.ClientVars;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.*;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -259,9 +261,10 @@ public class AlternativeOreDrop {
         TreeMap<String, ArrayList<OreRegister>> usageMap = isDedicated ? ClientVars.oreMap : oreMap;
 
         preferOreOnMap(oreName, reg, usageMap);
+        if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+            preferOreOnMap(oreName, reg, ClientVars.sortMap);
 
         if(!isDedicated) {
-            preferOreOnMap(oreName, reg, ClientVars.sortMap);
             initiateFirstRegistrations(fileDir);
         }
     }
