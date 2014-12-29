@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.renderer.entity.RenderItem;
 import org.lwjgl.input.Keyboard;
 
 import java.lang.reflect.Field;
@@ -29,8 +28,6 @@ public class GuiAdjustRegister extends GuiScreen {
     private GuiAdjustRegisterScrollingList scrollingList;
     private GuiTextField search;
     public float partialTicks;
-
-    protected static RenderItem itemRenderer = new RenderItem();
 
     public GuiAdjustRegister(TreeMap<String, ArrayList<AlternativeOreDrop.OreRegister>> oreMapJson){
         if(oreMapJson != null)
@@ -117,13 +114,13 @@ public class GuiAdjustRegister extends GuiScreen {
             return;
 
         if(button == this.back){
-            this.mc.displayGuiScreen(new GuiConfigScreen(ClientVars.serverIdentifiers));
+            this.mc.displayGuiScreen(new GuiConfigScreen());
         }
     }
 
     protected void keyTyped(char par1, int par2){
         if(par2 == Keyboard.KEY_ESCAPE){
-            this.mc.displayGuiScreen(new GuiConfigScreen(ClientVars.serverIdentifiers));
+            this.mc.displayGuiScreen(new GuiConfigScreen());
         }
         search.textboxKeyTyped(par1, par2);
         updateSortMap();

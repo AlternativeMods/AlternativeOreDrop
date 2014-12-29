@@ -163,6 +163,32 @@ public abstract class AODPacket {
                 isDedicated = buffer.readBoolean();
             }
         }
+
+        public static class SendServerIdentifiers extends AODPacket {
+            public String[] identifiers;
+
+            public SendServerIdentifiers(){
+            }
+
+            public SendServerIdentifiers(String[] identifiers){
+                this.identifiers = identifiers;
+            }
+
+            @Override
+            public void encode(ByteBuf buffer){
+                buffer.writeInt(identifiers.length);
+                for(int i=0; i<identifiers.length; i++)
+                    ByteBufUtils.writeUTF8String(buffer, identifiers[i]);
+            }
+
+            @Override
+            public void decode(ByteBuf buffer){
+                int size = buffer.readInt();
+                identifiers = new String[size];
+                for(int i=0; i<size; i++)
+                    identifiers[i] = ByteBufUtils.readUTF8String(buffer);
+            }
+        }
     }
 
     public static class Server {

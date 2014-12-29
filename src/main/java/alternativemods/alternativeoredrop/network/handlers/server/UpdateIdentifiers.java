@@ -2,6 +2,7 @@ package alternativemods.alternativeoredrop.network.handlers.server;
 
 import alternativemods.alternativeoredrop.AlternativeOreDrop;
 import alternativemods.alternativeoredrop.network.AODPacket;
+import alternativemods.alternativeoredrop.network.NetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -16,5 +17,6 @@ public class UpdateIdentifiers extends SimpleChannelInboundHandler<AODPacket.Ser
     protected void channelRead0(ChannelHandlerContext ctx, AODPacket.Server.UpdateIdentifiers msg) throws Exception{
         AlternativeOreDrop.identifiers = msg.identifiers;
         AlternativeOreDrop.saveConfig();
+        NetworkHandler.sendPacketToAllPlayers(new AODPacket.Client.SendServerIdentifiers(msg.identifiers));
     }
 }

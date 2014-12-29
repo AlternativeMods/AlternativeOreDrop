@@ -2,8 +2,8 @@ package alternativemods.alternativeoredrop.network;
 
 import alternativemods.alternativeoredrop.network.handlers.client.AdjustOre_Client;
 import alternativemods.alternativeoredrop.network.handlers.client.AdjustRegister_Client;
-import alternativemods.alternativeoredrop.network.handlers.client.OpenAODGui;
 import alternativemods.alternativeoredrop.network.handlers.client.PreferOre_Client;
+import alternativemods.alternativeoredrop.network.handlers.client.SendServerIdentifiers_Client;
 import alternativemods.alternativeoredrop.network.handlers.server.*;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
@@ -50,10 +50,10 @@ public class NetworkHandler {
         ChannelPipeline pipeline = channels.get(Side.CLIENT).pipeline();
         String targetName = channels.get(Side.CLIENT).findChannelHandlerNameForType(PacketCodec.class);
 
-        pipeline.addAfter(targetName, "OpenAODGui", new OpenAODGui());
         pipeline.addAfter(targetName, "AdjustRegister_Client", new AdjustRegister_Client());
         pipeline.addAfter(targetName, "AdjustOre_Client", new AdjustOre_Client());
         pipeline.addAfter(targetName, "PreferOre_Client", new PreferOre_Client());
+        pipeline.addAfter(targetName, "SendServerIdentifiers_Client", new SendServerIdentifiers_Client());
     }
 
     public static Packet getProxyPacket(AODPacket packet){

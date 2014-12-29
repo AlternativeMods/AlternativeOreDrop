@@ -11,17 +11,25 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class PacketCodec extends FMLIndexedMessageToMessageCodec<AODPacket> {
 
-    public PacketCodec(){
-        this.addDiscriminator(0, AODPacket.Client.OpenAODGui.class);
-        this.addDiscriminator(1, AODPacket.Client.AdjustRegister.class);
-        this.addDiscriminator(2, AODPacket.Client.AdjustOre.class);
-        this.addDiscriminator(3, AODPacket.Client.PreferOre.class);
+    int lastDiscriminator = 0;
 
-        this.addDiscriminator(4, AODPacket.Server.UpdateIdentifiers.class);
-        this.addDiscriminator(5, AODPacket.Server.RegenerateRegister.class);
-        this.addDiscriminator(6, AODPacket.Server.AdjustRegister.class);
-        this.addDiscriminator(7, AODPacket.Server.AdjustOre.class);
-        this.addDiscriminator(8, AODPacket.Server.PreferOre.class);
+    public PacketCodec(){
+        addPacket(AODPacket.Client.OpenAODGui.class);
+        addPacket(AODPacket.Client.AdjustRegister.class);
+        addPacket(AODPacket.Client.AdjustOre.class);
+        addPacket(AODPacket.Client.PreferOre.class);
+        addPacket(AODPacket.Client.SendServerIdentifiers.class);
+
+        addPacket(AODPacket.Server.UpdateIdentifiers.class);
+        addPacket(AODPacket.Server.RegenerateRegister.class);
+        addPacket(AODPacket.Server.AdjustRegister.class);
+        addPacket(AODPacket.Server.AdjustOre.class);
+        addPacket(AODPacket.Server.PreferOre.class);
+    }
+
+    void addPacket(Class<? extends AODPacket> type) {
+        this.addDiscriminator(lastDiscriminator, type);
+        lastDiscriminator++;
     }
 
     @Override

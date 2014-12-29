@@ -1,6 +1,5 @@
 package alternativemods.alternativeoredrop;
 
-import alternativemods.alternativeoredrop.commands.MainCommand;
 import alternativemods.alternativeoredrop.events.ClientTickHandler;
 import alternativemods.alternativeoredrop.events.GuiScreenHandler;
 import alternativemods.alternativeoredrop.events.OreDropEventHandler;
@@ -12,7 +11,6 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.item.Item;
@@ -281,10 +279,5 @@ public class AlternativeOreDrop {
             }
         }
         map.get(oreName).add(0, reg);
-    }
-
-    @Mod.EventHandler
-    public void serverLoad(FMLServerStartingEvent event){
-        event.registerServerCommand(new MainCommand());
     }
 }

@@ -21,14 +21,6 @@ public class GuiConfigScreen extends GuiScreen {
     private GuiButton regenerateRegister;
     private GuiButton changePreferredRegister;
 
-    public GuiConfigScreen(){
-        ClientVars.serverIdentifiers = "";
-    }
-
-    public GuiConfigScreen(String identifiers){
-        ClientVars.serverIdentifiers = identifiers;
-    }
-
     public void initGui(){
         this.identifiers = new GuiTextField(this.fontRendererObj, this.width / 2 - 125, 60, 250, 20);
         this.identifiers.setFocused(true);

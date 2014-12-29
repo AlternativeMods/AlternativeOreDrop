@@ -1,6 +1,6 @@
 package alternativemods.alternativeoredrop.events;
 
-import alternativemods.alternativeoredrop.commands.MainCommand;
+import alternativemods.alternativeoredrop.gui.GuiConfigScreen;
 import cpw.mods.fml.client.GuiIngameModOptions;
 import cpw.mods.fml.client.GuiModOptionList;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -112,8 +112,7 @@ public class GuiScreenHandler {
     @SubscribeEvent
     public void actionPerformedEvent(GuiScreenEvent.ActionPerformedEvent event) {
         if(event.button == aodButton) {
-            Minecraft.getMinecraft().thePlayer.closeScreenNoPacket();
-            Minecraft.getMinecraft().thePlayer.sendChatMessage("/" + new MainCommand().getCommandName());
+            Minecraft.getMinecraft().displayGuiScreen(new GuiConfigScreen());
         }
     }
 
