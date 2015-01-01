@@ -26,15 +26,15 @@ public class GuiConfigScreen extends GuiScreen {
         this.identifiers.setFocused(true);
         this.identifiers.setText(ClientVars.serverIdentifiers);
 
-        this.applyIdentifiers = new GuiButton(0, this.width / 2 - 126, this.height - 155, 120, 20, "Apply identifiers");
+        this.applyIdentifiers = new GuiButton(0, this.width / 2 - 126, this.height - 155, 253, 20, "Apply and regenerate register");
         if(this.identifiers.getText().isEmpty())
             this.applyIdentifiers.enabled = false;
         this.buttonList.add(this.applyIdentifiers);
 
-        this.regenerateRegister = new GuiButton(1, this.width / 2 + 6, this.height - 155, 120, 20, "Regenerate Register");
-        this.buttonList.add(this.regenerateRegister);
+        //this.regenerateRegister = new GuiButton(1, this.width / 2 + 6, this.height - 155, 120, 20, "Regenerate Register");
+        //this.buttonList.add(this.regenerateRegister);
 
-        this.changePreferredRegister = new GuiButton(2, this.width / 2 - 126, this.height - 55, 253, 20, "Adjust preferred register");
+        this.changePreferredRegister = new GuiButton(1, this.width / 2 - 126, this.height - 55, 253, 20, "Adjust preferences");
         this.buttonList.add(this.changePreferredRegister);
     }
 
@@ -45,15 +45,15 @@ public class GuiConfigScreen extends GuiScreen {
         if(button == this.applyIdentifiers){
             this.mc.thePlayer.addChatMessage(new ChatComponentText("Identifiers set to:"));
             this.mc.thePlayer.addChatMessage(new ChatComponentText(identifiers.getText()));
+            this.mc.thePlayer.addChatMessage(new ChatComponentText("Successfully regenerated the register!"));
 
             NetworkHandler.sendPacketToServer(new AODPacket.Server.UpdateIdentifiers(identifiers.getText()));
-            this.mc.thePlayer.closeScreen();
+            NetworkHandler.sendPacketToServer(new AODPacket.Server.RegenerateRegister());
         }
-        if(button == this.regenerateRegister){
+        /*if(button == this.regenerateRegister){
             NetworkHandler.sendPacketToServer(new AODPacket.Server.RegenerateRegister());
             this.mc.thePlayer.addChatMessage(new ChatComponentText("Succesfully regenerated the register!"));
-            this.mc.thePlayer.closeScreen();
-        }
+        }*/
         if(button == this.changePreferredRegister){
             NetworkHandler.sendPacketToServer(new AODPacket.Server.AdjustRegister(true));
         }
