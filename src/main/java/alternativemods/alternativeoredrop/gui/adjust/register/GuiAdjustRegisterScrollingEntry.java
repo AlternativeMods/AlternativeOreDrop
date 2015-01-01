@@ -50,6 +50,10 @@ public class GuiAdjustRegisterScrollingEntry implements GuiListExtended.IGuiList
 
         AlternativeOreDrop.OreRegister reg = ores.get(0);
         ItemStack is = new ItemStack((Item) Item.itemRegistry.getObject(reg.modId + ":" + reg.itemName), 1, reg.damage);
+        if(is == null || is.getItem() == null) {
+            RenderHelper.enableGUIStandardItemLighting();
+            return;
+        }
         if(selected) {
             RenderHelper.disableStandardItemLighting();
             if(is.getItem() instanceof ItemBlock) {

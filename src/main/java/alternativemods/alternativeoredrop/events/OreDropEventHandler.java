@@ -30,7 +30,7 @@ public class OreDropEventHandler {
 
             ItemStack item = itemEnt.getEntityItem();
             item = new ItemStack(item.getItem(), 1, item.getItemDamage());
-            String name = OreDictionary.getOreName(OreDictionary.getOreID(item));
+            String name = OreDictionary.getOreName(OreDictionary.getOreIDs(item)[0]);
             if(AlternativeOreDrop.isOreRegistered(name) && !AlternativeOreDrop.isFirstRegisteredOre(name, item)){
                 AlternativeOreDrop.OreRegister oreReg = AlternativeOreDrop.returnAlternativeOre(name);
                 ItemStack alternativeOre = new ItemStack((Item) Item.itemRegistry.getObject(oreReg.modId + ":" + oreReg.itemName), stackSize, oreReg.damage);

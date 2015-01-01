@@ -84,10 +84,13 @@ public class GuiAdjustOre extends GuiScreen {
         drawRect(x, y - 5, x + scrollingList.getListWidth(), y - 40, 0xAA000000);
         drawString(fontRendererObj, is.getDisplayName(), x + scrollingList.getListWidth() - fontRendererObj.getStringWidth(is.getDisplayName()) - 5, y - 26, 0xFFFFFFFF);
 
-        RenderHelper.disableStandardItemLighting();
         RenderHelper.enableGUIStandardItemLighting();
 
         RenderHelper.disableStandardItemLighting();
+        if(is == null || is.getItem() == null) {
+            RenderHelper.enableGUIStandardItemLighting();
+            return;
+        }
         if(is.getItem() instanceof ItemBlock) {
             Block block = Block.getBlockFromItem(is.getItem());
             if(block.getRenderType() == 0)
